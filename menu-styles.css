@@ -395,14 +395,10 @@ tr:hover {
     margin-bottom: 10px;
   }
   
-  .data-table {
-    overflow-x: auto;
-    width: 100%;
-  }
-  
   table {
     min-width: 600px;
     table-layout: fixed;
+    border-spacing: 0;
   }
   
   th, td {
@@ -410,6 +406,7 @@ tr:hover {
     font-size: 0.9rem;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    vertical-align: middle;
   }
   
   td:nth-child(1) {
@@ -431,31 +428,68 @@ tr:hover {
   
   td:nth-child(6) {
     width: 35%;
+    padding-right: 15px;
   }
   
-  .action-btn {
-    padding: 6px 8px;
-    font-size: 0.85rem;
-    display: inline-block;
-    margin-bottom: 5px;
-    width: calc(50% - 5px);
-    text-align: center;
+  /* Стили для прокрутки таблицы */
+  .data-table {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+  }
+  
+  /* Стилизация скроллбара для поддерживаемых браузеров */
+  .data-table::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .data-table::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .data-table::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+  }
+  
+  .data-table::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
   }
   
   .action-buttons-cell {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
+    width: 100%;
   }
   
   .action-btn {
-    padding: 6px 8px;
-    font-size: 0.85rem;
+    padding: 8px 10px;
+    font-size: 0.9rem;
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-right: 0;
     margin-bottom: 0;
     width: 100%;
+    min-width: 160px;
+    max-width: 100%;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .action-btn i {
+    font-size: 1rem;
+    margin-right: 8px;
+  }
+  
+  .action-btn:hover {
+    background-color: var(--bg-light);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
   }
 }
 

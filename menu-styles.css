@@ -48,6 +48,11 @@ html, body {
   height: var(--header-height);
 }
 
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
 .logo-container h1 {
   color: var(--violet);
   font-size: 1.75rem;
@@ -266,6 +271,9 @@ tr:hover {
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.8rem;
+  white-space: nowrap;
+  text-align: center;
+  min-width: 100px;
 }
 
 .status-active {
@@ -291,7 +299,15 @@ tr:hover {
   border-radius: 4px;
   cursor: pointer;
   margin-right: 5px;
+  margin-bottom: 5px;
   transition: all 0.3s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.action-btn i {
+  margin-right: 5px;
 }
 
 .action-btn:hover {
@@ -330,6 +346,13 @@ tr:hover {
 @media (max-width: 768px) {
   .menu-toggle {
     display: block;
+    order: 1;
+    margin-right: 10px;
+  }
+  
+  .logo-container h1 {
+    order: 2;
+    font-size: 1.5rem;
   }
   
   .dashboard {
@@ -359,10 +382,6 @@ tr:hover {
     padding: 10px 15px;
   }
   
-  .logo-container h1 {
-    font-size: 1.5rem;
-  }
-  
   .user-info span {
     display: none;
   }
@@ -378,10 +397,65 @@ tr:hover {
   
   .data-table {
     overflow-x: auto;
+    width: 100%;
   }
   
   table {
     min-width: 600px;
+    table-layout: fixed;
+  }
+  
+  th, td {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  td:nth-child(1) {
+    width: 15%;
+  }
+  
+  td:nth-child(2) {
+    width: 15%;
+  }
+  
+  td:nth-child(3) {
+    width: 15%;
+  }
+  
+  td:nth-child(4), td:nth-child(5) {
+    width: 10%;
+    text-align: center;
+  }
+  
+  td:nth-child(6) {
+    width: 35%;
+  }
+  
+  .action-btn {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-bottom: 5px;
+    width: calc(50% - 5px);
+    text-align: center;
+  }
+  
+  .action-buttons-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .action-btn {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: center;
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 100%;
   }
 }
 
@@ -399,4 +473,11 @@ tr:hover {
 
 .sidebar-backdrop.active {
   display: block;
+}
+
+/* Контейнер для кнопок в ячейках таблицы */
+.action-buttons-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 } 

@@ -1,0 +1,190 @@
+/* Определяем цветовые переменные */
+:root {
+    --white: #ffffff;
+    --violet: #8A2BE2;
+    --blue: #4A90E2;
+    --blue-light: #AEDFF7;
+    --green: #2ECC71;
+    --text-color: #333333;
+    --border-gray: #dddddd;
+}
+
+/* Сброс стилей */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+    color: var(--text-color);
+}
+
+/* Фон для всей страницы */
+body {
+    background: linear-gradient(135deg, var(--white), var(--blue-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Контейнер формы */
+.auth-container {
+    width: 100%;
+    max-width: 400px;
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Стилизация заголовка */
+#login-form h1, #register-form h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.75rem;
+    color: var(--blue);
+}
+
+/* Группы инпутов */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--blue);
+}
+
+/* Опции: чекбокс и ссылка */
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.options label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.options input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.options a {
+    color: var(--blue);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.options a:hover {
+    color: var(--violet);
+}
+
+/* Кнопка авторизации с эффектом парения */
+#login-btn, #register-btn {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--blue);
+    background: var(--white);
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#login-btn:hover, #register-btn:hover {
+    color: var(--violet);
+    border-color: var(--violet);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(138, 43, 226, 0.2);
+}
+
+/* Анимация загрузки */
+#loading-animation {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--blue);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Скрытый элемент */
+.hidden {
+    display: none;
+}
+
+/* Стили для ссылок регистрации и входа */
+.register-link, .login-link {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.register-link a, .login-link a {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.register-link a:hover, .login-link a:hover {
+    color: var(--violet);
+    text-decoration: underline;
+}
+
+/* Адаптивность под мобильные устройства */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    #login-form h1, #register-form h1 {
+        font-size: 1.5rem;
+    }
+
+    .input-group input {
+        padding: 10px 12px;
+    }
+
+    #login-btn, #register-btn {
+        padding: 10px 0;
+        font-size: 0.95rem;
+    }
+}

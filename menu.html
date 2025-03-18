@@ -74,7 +74,8 @@
                     <button><i class="fas fa-file-import"></i> Импорт заказов</button>
                 </div>
                 
-                <div class="data-table">
+                <!-- Обычная таблица (будет скрыта на мобильных) -->
+                <div class="data-table desktop-only">
                     <table>
                         <thead>
                             <tr>
@@ -127,6 +128,86 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Мобильная версия (карточки вместо таблицы) -->
+                <div class="mobile-cards mobile-only">
+                    <!-- Карточка 1 -->
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-number">ORD-2023-001</div>
+                            <div class="order-status status-active">В процессе</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Дата:</span>
+                                <span class="detail-value">15.07.2023</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Товары:</span>
+                                <span class="detail-value">24</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-value">3</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                            <button class="mobile-btn optimize-btn"><i class="fas fa-magic"></i> Оптимизировать</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Карточка 2 -->
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-number">ORD-2023-002</div>
+                            <div class="order-status status-complete">Завершен</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Дата:</span>
+                                <span class="detail-value">14.07.2023</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Товары:</span>
+                                <span class="detail-value">36</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-value">4</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Карточка 3 -->
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-number">ORD-2023-003</div>
+                            <div class="order-status status-pending">Ожидание</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Дата:</span>
+                                <span class="detail-value">16.07.2023</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Товары:</span>
+                                <span class="detail-value">18</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-value">2</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                            <button class="mobile-btn start-btn"><i class="fas fa-play"></i> Начать сборку</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 

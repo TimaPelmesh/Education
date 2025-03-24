@@ -1,6 +1,6 @@
 // Файл для интеграции 3D-визуализации склада в основное меню
 
-// Глобальная переменная для рендерера CSS2D меток
+// Глобальная переменная для CSS2D рендерера
 let labelRenderer;
 
 // Глобальная функция для активации вкладки "Склад"
@@ -27,6 +27,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Функция для переключения на раздел "Склад"
     function activateWarehouseTab() {
         console.log("Активируем вкладку 'Склад'");
+        
+        // Обеспечиваем компактный режим для десктопных устройств
+        if (window.innerWidth >= 768) {
+            const dashboard = document.querySelector('.dashboard');
+            if (dashboard && !dashboard.classList.contains('compact-sidebar')) {
+                dashboard.classList.add('compact-sidebar');
+                console.log('Активирован компактный режим меню для склада');
+            }
+        }
+        
         if (!warehouseInitialized) {
             // Устанавливаем небольшую задержку, чтобы дождаться полной отрисовки раздела
             setTimeout(() => {
@@ -42,6 +52,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         init();
                         warehouseInitialized = true;
                         console.log('3D-визуализация склада инициализирована по клику');
+                        
+                        // Добавляем класс, показывающий, что визуализация загружена
+                        warehouseView.classList.add('visualization-loaded');
                     } catch (e) {
                         console.error("Ошибка при инициализации 3D-визуализации:", e);
                     }
@@ -71,12 +84,27 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Раздел 'Склад' активен при загрузке, инициализируем");
         setTimeout(() => {
             if (!warehouseInitialized && document.getElementById('warehouse-view')) {
+                // Активируем компактный режим меню
+                if (window.innerWidth >= 768) {
+                    const dashboard = document.querySelector('.dashboard');
+                    if (dashboard) {
+                        dashboard.classList.add('compact-sidebar');
+                        console.log('Активирован компактный режим меню для склада при загрузке');
+                    }
+                }
+                
                 // Инициализируем CSS2D рендерер для меток
                 initCSS2DRenderer();
                 // Инициализируем 3D-визуализацию
                 init();
                 warehouseInitialized = true;
                 console.log('3D-визуализация склада инициализирована при загрузке');
+                
+                // Добавляем класс, показывающий, что визуализация загружена
+                const warehouseView = document.getElementById('warehouse-view');
+                if (warehouseView) {
+                    warehouseView.classList.add('visualization-loaded');
+                }
             } else {
                 console.error("Не удалось инициализировать визуализацию: ", {
                     warehouseInitialized,
@@ -101,9 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof onWindowResize === 'function') {
                 onWindowResize();
                 // Обновляем размер CSS2D рендерера
-                if (labelRenderer) {
-                    labelRenderer.setSize(window.innerWidth, window.innerHeight);
-                }
+                updateLabelRenderer();
             }
         }
     });
@@ -127,7 +153,7 @@ function initCSS2DRenderer() {
     try {
         // Создаем рендерер для CSS2D объектов
         labelRenderer = new THREE.CSS2DRenderer();
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        updateLabelRenderer();
         labelRenderer.domElement.style.position = 'absolute';
         labelRenderer.domElement.style.top = '0';
         labelRenderer.domElement.style.left = '0';
@@ -141,5 +167,18 @@ function initCSS2DRenderer() {
         }
     } catch (e) {
         console.error("Ошибка при инициализации CSS2D рендерера:", e);
+    }
+}
+
+// Функция обновления размера CSS2D рендерера
+function updateLabelRenderer() {
+    if (labelRenderer) {
+        const warehouseView = document.getElementById('warehouse-view');
+        if (warehouseView) {
+            const width = warehouseView.clientWidth;
+            const height = warehouseView.clientHeight;
+            labelRenderer.setSize(width, height);
+            console.log(`CSS2D рендерер обновлен (${width}x${height})`);
+        }
     }
 } 

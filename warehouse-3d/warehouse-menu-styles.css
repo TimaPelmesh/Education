@@ -3,31 +3,161 @@
 /* Контейнер для 3D-визуализации склада */
 .warehouse-container {
     width: 100%;
-    height: calc(100vh - 180px); /* Высота контента минус заголовок и отступы */
+    height: calc(100vh - 140px);
     overflow: hidden;
-    margin-top: 20px;
+    margin-top: 10px;
     position: relative;
+    transition: all 0.3s ease-in-out;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
+.compact-sidebar .warehouse-container {
+    width: calc(100% + 15px);
+    margin-left: -10px;
+    height: calc(100vh - 100px);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Стили для 3D-визуализации и информационной панели */
 .warehouse-3d-view {
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
     position: relative;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid #eee;
     overflow: hidden;
     background-color: #f9f9f9;
+    transition: all 0.3s ease;
 }
 
-/* Основная часть с 3D визуализацией */
-#warehouse-view {
-    flex: 1;
-    background-color: #f5f5f5;
-    position: relative;
-    min-height: 400px;
-    width: 100%;
+/* В зависимости от размера экрана, меняем расположение */
+@media (min-width: 769px) {
+    .warehouse-3d-view {
+        flex-direction: row;
+    }
+    
+    .info-panel {
+        width: 300px;
+        height: 100%;
+        background-color: #fff;
+        border-right: 1px solid #ddd;
+        border-top: none;
+        padding: 20px;
+        overflow-y: auto;
+        transition: all 0.3s ease;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
+        color: #333;
+    }
+    
+    #warehouse-view {
+        flex: 1;
+        background-color: #f5f5f5;
+        position: relative;
+        min-height: 450px;
+        transition: background-color 0.5s ease;
+        width: calc(100% - 300px);
+    }
+    
+    /* При скрытии информационной панели */
+    .warehouse-3d-view.hide-info-panel .info-panel {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .warehouse-3d-view.hide-info-panel #warehouse-view {
+        width: 100%;
+    }
+    
+    /* Кнопка для сворачивания/разворачивания информационной панели */
+    .toggle-info-panel {
+        position: absolute;
+        top: 50%;
+        right: -24px;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 50px;
+        background-color: rgba(25, 118, 210, 0.9);
+        color: white;
+        border: none;
+        border-radius: 0 4px 4px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 11;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+        opacity: 1;
+    }
+    
+    .toggle-info-panel:hover {
+        background-color: rgba(25, 118, 210, 1);
+        box-shadow: 3px 0 8px rgba(0, 0, 0, 0.3);
+        width: 26px;
+    }
+    
+    .toggle-info-panel i {
+        font-size: 14px;
+        transition: transform 0.3s ease;
+    }
+    
+    .warehouse-3d-view.hide-info-panel .toggle-info-panel i {
+        transform: rotate(180deg);
+    }
+    
+    .warehouse-3d-view.hide-info-panel .toggle-info-panel {
+        right: 0;
+    }
+}
+
+/* Для мобильных устройств - вертикальный макет */
+@media (max-width: 768px) {
+    .warehouse-3d-view {
+        flex-direction: column;
+    }
+    
+    #warehouse-view {
+        flex: 1;
+        background-color: #f5f5f5;
+        position: relative;
+        min-height: 300px;
+        width: 100%;
+        transition: background-color 0.5s ease;
+    }
+    
+    .info-panel {
+        height: 120px;
+        background-color: #fff;
+        border-top: 1px solid #ddd;
+        padding: 10px 15px;
+        overflow-y: auto;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
+        color: #333;
+    }
+    
+    .toggle-info-panel {
+        display: none;
+    }
+}
+
+#warehouse-view.visualization-loaded {
+    background-color: #f0f0f0;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
 }
 
 #warehouse-view canvas {
@@ -36,194 +166,271 @@
     display: block;
 }
 
-/* Информационная панель */
-.info-panel {
-    height: 150px;
-    background-color: #fff;
-    border-top: 1px solid #ddd;
-    padding: 15px;
-    overflow-y: auto;
-    width: 100%;
+/* Скрываем заголовок раздела при компактном режиме для увеличения пространства */
+.compact-sidebar #warehouse h2 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
 }
 
-/* Стили для кнопок управления видом */
+.fullscreen-active #warehouse h2 {
+    display: none;
+}
+
+/* Общие стили информационной панели */
+.info-panel h3 {
+    margin-bottom: 15px;
+    color: #1976d2;
+    font-size: 18px;
+    font-weight: 600;
+    border-left: 4px solid #1976d2;
+    padding-left: 10px;
+}
+
+.info-panel #section-info {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.info-panel #section-info p {
+    margin: 5px 0;
+}
+
+.compact-sidebar .info-panel {
+    background-color: #f8fafd;
+}
+
+@media (min-width: 769px) {
+    .compact-sidebar .info-panel {
+        border-top: none;
+        border-right: 2px solid #1976d2;
+    }
+}
+
+@media (max-width: 768px) {
+    .compact-sidebar .info-panel {
+        border-top: 2px solid #1976d2;
+        border-left: none;
+    }
+}
+
+/* Улучшенные стили для панели при выборе секции или паллеты */
+.info-panel.has-selection {
+    background-color: #e3f2fd;
+    animation: highlightPanel 0.5s ease-in-out;
+}
+
+@media (min-width: 769px) {
+    .info-panel.has-selection {
+        box-shadow: 4px 0 15px rgba(25, 118, 210, 0.15);
+    }
+}
+
+@media (max-width: 768px) {
+    .info-panel.has-selection {
+        box-shadow: 0 -4px 15px rgba(25, 118, 210, 0.15);
+    }
+}
+
+@keyframes highlightPanel {
+    0% { background-color: #fff; }
+    50% { background-color: #bbdefb; }
+    100% { background-color: #e3f2fd; }
+}
+
+/* Стили для кнопок управления видом (вернул более приятный дизайн) */
 .view-buttons {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 15px;
     z-index: 100;
     display: flex;
-    gap: 5px;
+    gap: 8px;
 }
 
 .view-buttons button {
-    background-color: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ccc;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 5px 10px;
+    padding: 6px 12px;
     font-size: 14px;
     cursor: pointer;
-    color: #333;
+    color: #1976d2;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .view-buttons button:hover {
     background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-color: #1976d2;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
     transform: translateY(-1px);
+}
+
+.view-buttons button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Убрал иконки из кнопок видов и вернул прежний дизайн */
+.view-buttons button:before {
+    display: none;
 }
 
 /* Стили для метки ячейки */
 .cell-label {
-    font-size: 13px;
-    font-weight: bold;
-    color: #333;
-    background-color: rgba(255, 255, 255, 0.85);
-    padding: 3px 6px;
-    border-radius: 3px;
-    pointer-events: none;
-    user-select: none;
-    text-align: center;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* Стили для метки паллеты */
-.pallet-label {
+    color: rgba(44, 62, 80, 0.85);
+    padding: 2px 6px;
     font-size: 12px;
-    font-weight: bold;
-    color: #444;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 3px 6px;
-    border-radius: 3px;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     pointer-events: none;
-    user-select: none;
-    text-align: center;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
 }
 
-/* Стили для меток координатной сетки */
-.grid-label {
+.pallet-label {
+    color: rgba(44, 62, 80, 0.9);
+    padding: 2px 6px;
     font-size: 11px;
-    font-weight: bold;
-    padding: 2px 4px;
+    font-weight: 400;
+    background-color: rgba(255, 248, 227, 0.9);
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(2px);
+}
+
+.grid-label {
+    color: rgba(44, 62, 80, 0.6);
+    padding: 1px 4px;
+    font-size: 10px;
+    font-weight: 400;
+    background-color: rgba(255, 255, 255, 0.6);
     border-radius: 2px;
     pointer-events: none;
-    user-select: none;
-    text-align: center;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-/* Стили для адаптивной верстки */
+/* Кнопка информации для мобильных устройств */
+.info-button {
+    display: none;
+}
+
+/* Стили для выбранных элементов */
+.selected-section, .selected-pallet {
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+    }
+}
+
+/* Адаптивные стили для мобильных устройств */
 @media (max-width: 768px) {
     .warehouse-container {
-        height: calc(100vh - 150px);
+        height: calc(100vh - 160px);
+        margin-top: 5px;
     }
     
     .info-panel {
-        height: 130px;
+        height: 40%;
+        padding: 12px;
+    }
+    
+    .view-buttons {
+        top: 10px;
+        left: 10px;
     }
     
     .view-buttons button {
-        font-size: 12px;
-        padding: 3px 8px;
+        width: auto;
+        height: auto;
     }
     
     #warehouse-view {
-        min-height: 300px;
+        height: 60%;
+    }
+    
+    .cell-label, .pallet-label {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+    
+    .grid-label {
+        font-size: 8px;
+        padding: 0px 2px;
+    }
+    
+    .info-button {
+        width: 30px;
+        height: 30px;
+        bottom: 10px;
+        right: 10px;
     }
 }
 
-/* Предотвращаем конфликты стилей */
-#warehouse h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-/* Стили для выделенных секций */
-.selected-section {
-    color: #fff;
-    background-color: #1976d2;
-}
-
-/* Стили для размеров */
-.dimension-label {
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 3px;
-    font-size: 12px;
-    font-weight: bold;
-    pointer-events: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Стили для размеров секций */
-.section-dimension {
-    background-color: rgba(40, 167, 69, 0.8);
-    font-size: 10px;
-    padding: 2px 6px;
-}
-
-/* Стили для паллет */
-.pallet-info {
-    padding: 15px;
-    background-color: #e3f2fd;
-    border-left: 4px solid #1976d2;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.pallet-info h4 {
-    margin: 0 0 8px 0;
-    color: #1976d2;
-    font-size: 16px;
-}
-
-.pallet-info p {
-    margin: 5px 0;
-    color: #333;
-}
-
-.items-list {
-    margin: 8px 0 5px 20px;
-    padding: 0;
-}
-
-.items-list li {
-    margin-bottom: 4px;
-    color: #555;
-}
-
-/* Стили для инструментов навигации */
+/* Стили для панели навигационной помощи - скрыты по запросу пользователя */
 .navigation-help {
+    display: none;
     position: absolute;
-    bottom: 160px;
-    left: 10px;
+    bottom: 20px;
+    left: 20px;
     background-color: rgba(255, 255, 255, 0.9);
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    z-index: 1000;
     color: #333;
-    z-index: 100;
-    max-width: 300px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: opacity 0.3s ease;
+}
+
+.navigation-help.hidden {
+    display: none;
 }
 
 .navigation-help h4 {
-    margin: 0 0 6px 0;
-    font-size: 14px;
-    color: #1976d2;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.close-help {
+    cursor: pointer;
+    font-size: 18px;
+    color: #999;
+    transition: color 0.2s;
+}
+
+.close-help:hover {
+    color: #333;
 }
 
 .navigation-help ul {
-    margin: 0;
-    padding-left: 20px;
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 0;
 }
 
-.navigation-help li {
-    margin-bottom: 4px;
+.navigation-help ul li {
+    margin-bottom: 5px;
+    line-height: 1.5;
 } 

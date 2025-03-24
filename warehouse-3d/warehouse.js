@@ -7,6 +7,9 @@ let palletObjects = {};
 let dimensionLabels = [];
 let textureLoader; // загрузчик текстур
 let woodTexture; // текстура дерева для паллет
+let isMobileDevice = window.innerWidth <= 768; // Проверка мобильного устройства
+let isInfoPanelHidden = false; // Флаг скрытой информационной панели
+let isFullscreen = false; // Флаг полноэкранного режима
 
 // Инициализация 3D-сцены
 function init() {
@@ -20,19 +23,19 @@ function init() {
     
     // Создаем сцену
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf0f0f0);
+    scene.background = new THREE.Color(0xf5f7fa); // Более приятный цвет фона
 
     // Создаем загрузчик текстур
     textureLoader = new THREE.TextureLoader();
     
     // Загружаем текстуру дерева
     try {
-        // URL для текстуры дерева
-        const woodTextureUrl = 'https://threejs.org/examples/textures/crate.gif';
+        // Более реалистичная текстура дерева
+        const woodTextureUrl = 'https://threejs.org/examples/textures/hardwood2_diffuse.jpg';
         woodTexture = textureLoader.load(woodTextureUrl);
         woodTexture.wrapS = THREE.RepeatWrapping;
         woodTexture.wrapT = THREE.RepeatWrapping;
-        woodTexture.repeat.set(3, 3);
+        woodTexture.repeat.set(2, 2);
         console.log("Текстура дерева загружена");
     } catch (e) {
         console.error("Ошибка при загрузке текстуры:", e);
@@ -53,10 +56,14 @@ function init() {
     camera.position.set(warehouseData.dimensions.width / 2, 2000, warehouseData.dimensions.length / 2);
     camera.lookAt(warehouseData.dimensions.width / 2, 0, warehouseData.dimensions.length / 2);
 
-    // Настраиваем рендерер
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Настраиваем рендерер для лучшего качества изображения
+    renderer = new THREE.WebGLRenderer({ 
+        antialias: true,
+        alpha: true
+    });
     renderer.setSize(containerWidth, containerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.outputEncoding = THREE.sRGBEncoding; // Улучшенный цветовой профиль
     warehouseView.innerHTML = ''; // Очищаем контейнер перед добавлением
     warehouseView.appendChild(renderer.domElement);
 
@@ -64,7 +71,7 @@ function init() {
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
 
-    // Добавляем управление камерой (OrbitControls) с улучшенными настройками
+    // Добавляем управление камерой (OrbitControls)
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true; // плавное движение камеры
     controls.dampingFactor = 0.1; // скорость затухания инерции
@@ -85,18 +92,16 @@ function init() {
     // Добавляем кнопки для предустановленных ракурсов обзора
     addViewButtons();
 
-    // Добавляем подсказку по навигации
-    addNavigationHelp();
-
-    // Добавляем освещение
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    // Добавляем освещение с мягкими тенями
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Увеличиваем интенсивность для меньших теней
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(warehouseData.dimensions.width, 1000, warehouseData.dimensions.length);
+    // Основной направленный свет с более мягкими тенями
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Уменьшаем интенсивность
+    directionalLight.position.set(warehouseData.dimensions.width * 0.5, 800, warehouseData.dimensions.length * 0.5);
     directionalLight.castShadow = true;
     
-    // Настройка теней от directionalLight
+    // Настройка теней от directionalLight для более мягкого эффекта
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.far = 3000;
@@ -104,11 +109,18 @@ function init() {
     directionalLight.shadow.camera.right = 1500;
     directionalLight.shadow.camera.top = 1500;
     directionalLight.shadow.camera.bottom = -1500;
+    directionalLight.shadow.bias = -0.001; // Устраняем артефакты
+    directionalLight.shadow.radius = 2; // Смягчаем края теней
     scene.add(directionalLight);
+    
+    // Добавляем второй направленный свет с противоположной стороны
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.3);
+    directionalLight2.position.set(warehouseData.dimensions.width * 0.5, 600, -500);
+    scene.add(directionalLight2);
 
-    // Включаем тени
+    // Включаем тени с улучшенным качеством
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Мягкие тени
 
     // Добавляем пол с сеткой
     createFloor();
@@ -130,6 +142,9 @@ function init() {
             console.warn("labelRenderer не определен, метки не будут добавлены");
         }
         
+        // Добавляем кнопку для управления информационной панелью
+        addInfoPanelControls();
+        
         console.log("3D-сцена успешно создана");
     } catch (e) {
         console.error("Ошибка при создании объектов сцены:", e);
@@ -148,19 +163,37 @@ function init() {
     setTopView();
 }
 
-// Создание пола с более детальной сеткой
+// Создание пола с улучшенным дизайном
 function createFloor() {
-    // Создаем материал для пола
+    // Загружаем текстуру для пола (бетон или плитка)
+    let floorTexture = null;
+    try {
+        floorTexture = textureLoader.load('https://threejs.org/examples/textures/hardwood2_diffuse.jpg');
+        floorTexture.wrapS = THREE.RepeatWrapping;
+        floorTexture.wrapT = THREE.RepeatWrapping;
+        
+        // Масштаб текстуры зависит от размера склада
+        const repeatX = Math.ceil(warehouseData.dimensions.width / 200);
+        const repeatZ = Math.ceil(warehouseData.dimensions.length / 200);
+        floorTexture.repeat.set(repeatX, repeatZ);
+    } catch (e) {
+        console.error("Ошибка при загрузке текстуры пола:", e);
+    }
+    
+    // Создаем материал для пола с текстурой или без
     const floorMaterial = new THREE.MeshStandardMaterial({
-        color: 0xf9f9f9,
+        color: 0xeeeeee,
         roughness: 0.8,
-        metalness: 0.2
+        metalness: 0.2,
+        map: floorTexture,
+        side: THREE.DoubleSide
     });
     
     // Создаем геометрию пола
     const floorGeometry = new THREE.PlaneGeometry(
         warehouseData.dimensions.width + 400, 
-        warehouseData.dimensions.length + 400
+        warehouseData.dimensions.length + 400,
+        10, 10
     );
     
     // Создаем меш пола
@@ -172,24 +205,28 @@ function createFloor() {
     floor.receiveShadow = true; // Пол получает тени
     scene.add(floor);
     
-    // Добавляем основную сетку
+    // Добавляем основную сетку с более тонкими и менее заметными линиями
     const gridHelper = new THREE.GridHelper(
         Math.max(warehouseData.dimensions.width, warehouseData.dimensions.length) + 400, 
-        36, // Количество делений (больше для более детальной сетки)
-        0x000000, // Цвет основных линий
-        0xcccccc  // Цвет вспомогательных линий
+        40, // Количество делений
+        0x444444, // Цвет основных линий (более тёмный)
+        0xaaaaaa  // Цвет вспомогательных линий (светлее)
     );
-    gridHelper.position.y = -4; // Чуть выше пола
+    gridHelper.position.y = -3; // Чуть выше пола
     gridHelper.position.x = warehouseData.dimensions.width / 2;
     gridHelper.position.z = warehouseData.dimensions.length / 2;
+    gridHelper.material.transparent = true;
+    gridHelper.material.opacity = 0.3; // Делаем сетку менее заметной
     scene.add(gridHelper);
     
     // Добавляем подписи координат по периметру
     addGridLabels();
     
-    // Добавляем оси координат
-    const axesHelper = new THREE.AxesHelper(200);
+    // Добавляем менее заметные оси координат
+    const axesHelper = new THREE.AxesHelper(150);
     axesHelper.position.y = 5;
+    axesHelper.material.transparent = true;
+    axesHelper.material.opacity = 0.7;
     scene.add(axesHelper);
 }
 
@@ -200,15 +237,32 @@ function addGridLabels() {
     const width = warehouseData.dimensions.width;
     const length = warehouseData.dimensions.length;
     
+    // Улучшенный стиль для меток координат
+    const labelStyle = {
+        padding: '2px 5px',
+        fontSize: '10px',
+        fontWeight: '500',
+        borderRadius: '3px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.15)',
+        backdropFilter: 'blur(2px)',
+        fontFamily: 'Arial, sans-serif'
+    };
+    
     // Создаем метки координат по оси X (горизонталь)
     for (let x = 0; x <= width; x += 120) {
         const labelDiv = document.createElement('div');
         labelDiv.className = 'grid-label';
         labelDiv.textContent = x;
-        labelDiv.style.color = '#007bff';
-        labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-        labelDiv.style.padding = '2px 4px';
-        labelDiv.style.borderRadius = '2px';
+        
+        // Применяем улучшенный стиль для X-меток
+        labelDiv.style.color = '#2980b9';
+        labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.75)';
+        labelDiv.style.border = '1px solid rgba(41, 128, 185, 0.3)';
+        
+        // Применяем общие стили
+        Object.keys(labelStyle).forEach(key => {
+            labelDiv.style[key] = labelStyle[key];
+        });
         
         const label = new THREE.CSS2DObject(labelDiv);
         label.position.set(x, 10, -50);
@@ -220,10 +274,16 @@ function addGridLabels() {
         const labelDiv = document.createElement('div');
         labelDiv.className = 'grid-label';
         labelDiv.textContent = z;
-        labelDiv.style.color = '#28a745';
-        labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-        labelDiv.style.padding = '2px 4px';
-        labelDiv.style.borderRadius = '2px';
+        
+        // Применяем улучшенный стиль для Z-меток
+        labelDiv.style.color = '#27ae60';
+        labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.75)';
+        labelDiv.style.border = '1px solid rgba(39, 174, 96, 0.3)';
+        
+        // Применяем общие стили
+        Object.keys(labelStyle).forEach(key => {
+            labelDiv.style[key] = labelStyle[key];
+        });
         
         const label = new THREE.CSS2DObject(labelDiv);
         label.position.set(-50, 10, z);
@@ -242,7 +302,7 @@ function addViewButtons() {
     
     // Кнопка вида сверху
     const topViewBtn = document.createElement('button');
-    topViewBtn.textContent = 'Вид сверху';
+    topViewBtn.innerHTML = '<i class="fas fa-map"></i> Вид сверху';
     topViewBtn.onclick = setTopView;
     topViewBtn.style.marginRight = '5px';
     topViewBtn.style.padding = '5px 10px';
@@ -250,7 +310,7 @@ function addViewButtons() {
     
     // Кнопка изометрического вида
     const isoViewBtn = document.createElement('button');
-    isoViewBtn.textContent = 'Изометрия';
+    isoViewBtn.innerHTML = '<i class="fas fa-cube"></i> Изометрия';
     isoViewBtn.onclick = setIsometricView;
     isoViewBtn.style.padding = '5px 10px';
     buttonContainer.appendChild(isoViewBtn);
@@ -258,54 +318,126 @@ function addViewButtons() {
     document.getElementById('warehouse-view').appendChild(buttonContainer);
 }
 
-// Установка вида сверху
+// Установка вида камеры сверху
 function setTopView() {
-    if (!camera || !controls) return;
+    // Сохраняем текущую позицию камеры для плавного перехода
+    const startPosition = camera.position.clone();
+    const startTarget = controls.target.clone();
     
-    // Плавно перемещаем камеру в позицию сверху
-    new TWEEN.Tween(camera.position)
-        .to({
-            x: warehouseData.dimensions.width / 2,
-            y: 2000,
-            z: warehouseData.dimensions.length / 2
-        }, 1000)
-        .easing(TWEEN.Easing.Cubic.Out)
-        .start();
+    // Целевые значения для вида сверху
+    const warehouseCenter = new THREE.Vector3(
+        warehouseData.dimensions.width / 2,
+        0,
+        warehouseData.dimensions.length / 2
+    );
     
-    // Плавно перемещаем точку фокуса в центр склада
-    new TWEEN.Tween(controls.target)
-        .to({
-            x: warehouseData.dimensions.width / 2,
-            y: 0,
-            z: warehouseData.dimensions.length / 2
-        }, 1000)
-        .easing(TWEEN.Easing.Cubic.Out)
-        .start();
+    // Устанавливаем целевые значения с небольшим смещением для лучшего обзора
+    const targetPosition = new THREE.Vector3(
+        warehouseCenter.x, 
+        warehouseData.dimensions.width * 0.7, 
+        warehouseCenter.z
+    );
+    const targetTarget = new THREE.Vector3(
+        warehouseCenter.x, 
+        0, 
+        warehouseCenter.z
+    );
+    
+    // Создаем анимацию перехода к виду сверху
+    const duration = 1000; // миллисекунды
+    const startTime = Date.now();
+    
+    function animateCamera() {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1); // от 0 до 1
+        
+        // Функция сглаживания для более плавного движения
+        const easing = function(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        };
+        
+        const easedT = easing(t);
+        
+        // Интерполируем позицию камеры
+        camera.position.lerpVectors(startPosition, targetPosition, easedT);
+        controls.target.lerpVectors(startTarget, targetTarget, easedT);
+        controls.update();
+        
+        // Продолжаем анимацию, если не достигли конца
+        if (t < 1) {
+            requestAnimationFrame(animateCamera);
+        } else {
+            // Финальная корректировка для точного позиционирования
+            camera.position.copy(targetPosition);
+            controls.target.copy(targetTarget);
+            controls.update();
+        }
+    }
+    
+    // Запускаем анимацию
+    animateCamera();
 }
 
 // Установка изометрического вида
 function setIsometricView() {
-    if (!camera || !controls) return;
+    // Сохраняем текущую позицию камеры для плавного перехода
+    const startPosition = camera.position.clone();
+    const startTarget = controls.target.clone();
     
-    // Плавно перемещаем камеру в изометрическую позицию
-    new TWEEN.Tween(camera.position)
-        .to({
-            x: warehouseData.dimensions.width + 500,
-            y: 1000,
-            z: warehouseData.dimensions.length + 500
-        }, 1000)
-        .easing(TWEEN.Easing.Cubic.Out)
-        .start();
+    // Целевые значения для изометрического вида
+    const warehouseCenter = new THREE.Vector3(
+        warehouseData.dimensions.width / 2,
+        0,
+        warehouseData.dimensions.length / 2
+    );
     
-    // Плавно перемещаем точку фокуса в центр склада
-    new TWEEN.Tween(controls.target)
-        .to({
-            x: warehouseData.dimensions.width / 2,
-            y: 0,
-            z: warehouseData.dimensions.length / 2
-        }, 1000)
-        .easing(TWEEN.Easing.Cubic.Out)
-        .start();
+    // Устанавливаем целевые значения для изометрического вида
+    const targetPosition = new THREE.Vector3(
+        warehouseCenter.x + warehouseData.dimensions.width * 0.6, 
+        warehouseData.dimensions.width * 0.5, 
+        warehouseCenter.z + warehouseData.dimensions.length * 0.6
+    );
+    const targetTarget = new THREE.Vector3(
+        warehouseCenter.x, 
+        0, 
+        warehouseCenter.z
+    );
+    
+    // Создаем анимацию перехода к изометрическому виду
+    const duration = 1000; // миллисекунды
+    const startTime = Date.now();
+    
+    function animateCamera() {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1); // от 0 до 1
+        
+        // Функция сглаживания для более плавного движения
+        const easing = function(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        };
+        
+        const easedT = easing(t);
+        
+        // Интерполируем позицию камеры
+        camera.position.lerpVectors(startPosition, targetPosition, easedT);
+        controls.target.lerpVectors(startTarget, targetTarget, easedT);
+        controls.update();
+        
+        // Продолжаем анимацию, если не достигли конца
+        if (t < 1) {
+            requestAnimationFrame(animateCamera);
+        } else {
+            // Финальная корректировка для точного позиционирования
+            camera.position.copy(targetPosition);
+            controls.target.copy(targetTarget);
+            controls.update();
+        }
+    }
+    
+    // Запускаем анимацию
+    animateCamera();
 }
 
 // Добавление координатной сетки с обозначениями ячеек
@@ -321,20 +453,28 @@ function addCellLabels() {
             const labelDiv = document.createElement('div');
             labelDiv.className = 'cell-label';
             labelDiv.textContent = section.id;
-            labelDiv.style.position = 'absolute';
-            labelDiv.style.fontSize = '14px';
-            labelDiv.style.fontWeight = 'bold';
-            labelDiv.style.color = '#000';
-            labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-            labelDiv.style.padding = '2px 5px';
-            labelDiv.style.borderRadius = '3px';
+            
+            // Современное оформление метки ячейки
+            labelDiv.style.display = 'flex';
+            labelDiv.style.alignItems = 'center';
+            labelDiv.style.justifyContent = 'center';
+            labelDiv.style.fontSize = '13px';
+            labelDiv.style.fontWeight = '600';
+            labelDiv.style.color = 'rgba(44, 62, 80, 0.85)';
+            labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            labelDiv.style.padding = '4px 8px';
+            labelDiv.style.borderRadius = '6px';
             labelDiv.style.userSelect = 'none';
             labelDiv.style.pointerEvents = 'none';
+            labelDiv.style.border = '1px solid rgba(52, 152, 219, 0.3)';
+            labelDiv.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.1)';
+            labelDiv.style.backdropFilter = 'blur(4px)';
+            labelDiv.style.textShadow = '0 1px 2px rgba(255, 255, 255, 0.8)';
             
             const label = new THREE.CSS2DObject(labelDiv);
             label.position.set(
                 section.x + section.width / 2,
-                10,
+                15, // Увеличиваем высоту для лучшей видимости
                 section.z + section.depth / 2
             );
             scene.add(label);
@@ -352,11 +492,14 @@ function createWarehouseSections() {
             section.width, section.height, section.depth
         );
         
-        // Создаем материал секции
+        // Создаем материал секции с улучшенной прозрачностью и цветом
         const material = new THREE.MeshStandardMaterial({
             color: section.color,
             transparent: true,
-            opacity: 0.5
+            opacity: 0.6,
+            roughness: 0.5,
+            metalness: 0.0,
+            side: THREE.DoubleSide
         });
         
         // Создаем mesh (объект)
@@ -376,9 +519,22 @@ function createWarehouseSections() {
         // Добавляем в сцену
         scene.add(mesh);
         
+        // Создаем каркас для более четкого выделения границ
+        const wireframe = new THREE.LineSegments(
+            new THREE.EdgesGeometry(geometry),
+            new THREE.LineBasicMaterial({ 
+                color: 0x000000,
+                transparent: true,
+                opacity: 0.3
+            })
+        );
+        wireframe.position.copy(mesh.position);
+        scene.add(wireframe);
+        
         // Сохраняем ссылку на объект
         warehouseObjects[section.id] = {
             mesh: mesh,
+            wireframe: wireframe,
             data: section
         };
     });
@@ -392,60 +548,96 @@ function createPallets() {
         return;
     }
 
-    // Создаем геометрию для деревянного основания паллеты (поддона)
-    const baseGeometry = new THREE.BoxGeometry(1, 0.1, 1); // Стандартный размер, который будет масштабирован
-    
-    // Материал для деревянного основания (с текстурой или без)
-    const baseMaterial = woodTexture 
-        ? new THREE.MeshStandardMaterial({ 
-            map: woodTexture, 
-            roughness: 0.8,
-            metalness: 0.2
-        })
-        : new THREE.MeshStandardMaterial({ 
-            color: 0x8B4513, // коричневый цвет дерева
-            roughness: 0.8,
-            metalness: 0.2
-        });
-    
-    // Материал для верхней части паллеты (груз)
-    const palletMaterial = new THREE.MeshStandardMaterial({
-        transparent: true,
-        opacity: 0.85,
-        roughness: 0.5,
-        metalness: 0.3
-    });
+    // Создаем геометрию для деревянного основания паллеты (более детальный поддон)
+    const createPalletBase = function(width, depth) {
+        const baseGroup = new THREE.Group();
+        
+        // Основной поддон
+        const baseGeometry = new THREE.BoxGeometry(width, 5, depth);
+        const baseMaterial = woodTexture 
+            ? new THREE.MeshStandardMaterial({ 
+                map: woodTexture, 
+                roughness: 0.8,
+                metalness: 0.0,
+                color: 0x8B4513
+            })
+            : new THREE.MeshStandardMaterial({ 
+                color: 0x8B4513,
+                roughness: 0.8,
+                metalness: 0.0
+            });
+        
+        const baseMesh = new THREE.Mesh(baseGeometry, baseMaterial);
+        baseMesh.castShadow = true;
+        baseMesh.receiveShadow = true;
+        baseMesh.position.y = 2.5;
+        baseGroup.add(baseMesh);
+        
+        // Поперечные планки (3 штуки)
+        const crossBeamGeometry = new THREE.BoxGeometry(width, 5, 10);
+        for (let i = 0; i < 3; i++) {
+            const zPos = depth * (i / 2) - depth/2 + 5;
+            const crossBeam = new THREE.Mesh(crossBeamGeometry, baseMaterial);
+            crossBeam.castShadow = true;
+            crossBeam.receiveShadow = true;
+            crossBeam.position.set(0, 7.5, zPos);
+            baseGroup.add(crossBeam);
+        }
+        
+        return baseGroup;
+    };
     
     // Создание паллет в соответствии с данными
     warehouseData.pallets.forEach(pallet => {
-        // Создаем группу для паллеты (основание + груз)
+        // Создаем группу для паллеты
         const palletGroup = new THREE.Group();
         
-        // Создаем деревянное основание (поддон)
-        const base = new THREE.Mesh(baseGeometry, baseMaterial);
-        // Масштабируем основание по размерам паллеты
-        base.scale.set(pallet.width, 1, pallet.depth);
-        // Позиционируем основание на уровне пола
-        base.position.y = 5; // немного выше пола
-        base.castShadow = true;
-        base.receiveShadow = true;
-        
-        // Добавляем основание в группу
+        // Создаем детальное деревянное основание (поддон)
+        const base = createPalletBase(pallet.width, pallet.depth);
         palletGroup.add(base);
         
-        // Создаем верхнюю часть паллеты (груз)
-        const palletGeometry = new THREE.BoxGeometry(pallet.width, pallet.height, pallet.depth);
-        const material = palletMaterial.clone();
-        material.color.set(pallet.color || "#3498db"); // используем цвет из данных или синий по умолчанию
+        // Материал для основного груза на паллете
+        const palletMaterial = new THREE.MeshStandardMaterial({
+            color: pallet.color || "#3498db",
+            transparent: true,
+            opacity: 0.85,
+            roughness: 0.4,
+            metalness: 0.2
+        });
         
-        const palletMesh = new THREE.Mesh(palletGeometry, material);
-        // Позиционируем верхнюю часть над основанием
-        palletMesh.position.y = pallet.height/2 + 10; // половина высоты + высота основания
+        // Создаем основной груз
+        const palletGeometry = new THREE.BoxGeometry(
+            pallet.width * 0.9, // Немного уже поддона
+            pallet.height, 
+            pallet.depth * 0.9 // Немного короче поддона
+        );
+        const palletMesh = new THREE.Mesh(palletGeometry, palletMaterial);
         palletMesh.castShadow = true;
         palletMesh.receiveShadow = true;
-        
-        // Добавляем верхнюю часть в группу
+        palletMesh.position.y = pallet.height/2 + 12; // Высота над поддоном
         palletGroup.add(palletMesh);
+        
+        // Для крупных паллет добавляем детали (имитация упаковки)
+        if (pallet.height > 60 && pallet.width > 80) {
+            // Горизонтальные полосы стреп-ленты
+            const strapGeometry = new THREE.BoxGeometry(pallet.width * 0.92, 2, 5);
+            const strapMaterial = new THREE.MeshStandardMaterial({
+                color: 0x222222,
+                roughness: 0.8,
+                metalness: 0.4
+            });
+            
+            // Добавляем две стреп-ленты на разной высоте
+            const strap1 = new THREE.Mesh(strapGeometry, strapMaterial);
+            strap1.position.y = pallet.height/3 + 12;
+            strap1.position.z = pallet.depth/2 * 0.7;
+            palletGroup.add(strap1);
+            
+            const strap2 = new THREE.Mesh(strapGeometry, strapMaterial);
+            strap2.position.y = pallet.height*2/3 + 12;
+            strap2.position.z = -pallet.depth/2 * 0.7;
+            palletGroup.add(strap2);
+        }
         
         // Позиционируем группу в соответствии с координатами
         palletGroup.position.set(pallet.x, 0, pallet.z);
@@ -457,7 +649,6 @@ function createPallets() {
         palletObjects[pallet.id] = {
             group: palletGroup,
             mesh: palletMesh,
-            base: base,
             data: pallet
         };
         
@@ -472,17 +663,20 @@ function createPallets() {
 function addPalletLabel(pallet) {
     if (!labelRenderer) return;
     
-    // Создаем элемент для метки
+    // Создаем элемент для метки с улучшенным стилем
     const labelDiv = document.createElement('div');
     labelDiv.className = 'pallet-label';
     labelDiv.textContent = pallet.id;
-    labelDiv.style.padding = '3px 6px';
-    labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+    labelDiv.style.padding = '4px 8px';
+    labelDiv.style.backgroundColor = 'rgba(255, 248, 227, 0.9)';
     labelDiv.style.border = '1px solid ' + pallet.color;
-    labelDiv.style.borderRadius = '3px';
-    labelDiv.style.color = '#333';
-    labelDiv.style.fontSize = '12px';
-    labelDiv.style.fontWeight = 'bold';
+    labelDiv.style.borderRadius = '4px';
+    labelDiv.style.color = '#2c3e50';
+    labelDiv.style.fontSize = '11px';
+    labelDiv.style.fontWeight = '500';
+    labelDiv.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.15)';
+    labelDiv.style.backdropFilter = 'blur(2px)';
+    labelDiv.style.textShadow = '0 1px 2px rgba(255, 255, 255, 0.8)';
     
     // Создаем 2D-объект для метки
     const palletLabel = new THREE.CSS2DObject(labelDiv);
@@ -582,8 +776,13 @@ function createDimensionLine(start, end, label, labelPosition) {
     // Создаем геометрию линии
     const lineGeometry = new THREE.BufferGeometry().setFromPoints([start, end]);
     
-    // Материал для линии (красный цвет)
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
+    // Материал для линии (современный цвет)
+    const lineMaterial = new THREE.LineBasicMaterial({ 
+        color: 0x3498db, 
+        linewidth: 2,
+        transparent: true,
+        opacity: 0.85
+    });
     
     // Создаем линию
     const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -594,6 +793,17 @@ function createDimensionLine(start, end, label, labelPosition) {
         const labelDiv = document.createElement('div');
         labelDiv.className = 'dimension-label';
         labelDiv.textContent = label;
+        
+        // Улучшенный стиль для метки размера
+        labelDiv.style.backgroundColor = 'rgba(52, 152, 219, 0.9)';
+        labelDiv.style.color = '#ffffff';
+        labelDiv.style.padding = '3px 8px';
+        labelDiv.style.borderRadius = '4px';
+        labelDiv.style.fontSize = '11px';
+        labelDiv.style.fontWeight = '600';
+        labelDiv.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.2)';
+        labelDiv.style.backdropFilter = 'blur(3px)';
+        labelDiv.style.border = '1px solid rgba(255, 255, 255, 0.3)';
         
         const dimensionLabel = new THREE.CSS2DObject(labelDiv);
         dimensionLabel.position.copy(labelPosition);
@@ -688,7 +898,7 @@ function onMouseClick(event) {
         
         // Проверяем, является ли объект паллетой
         for (const palletId in palletObjects) {
-            if (palletObjects[palletId].mesh === object || palletObjects[palletId].base === object) {
+            if (palletObjects[palletId].mesh === object || palletObjects[palletId].group.children.includes(object)) {
                 selectPallet(palletId);
                 return;
             }
@@ -696,7 +906,7 @@ function onMouseClick(event) {
         
         // Проверяем, является ли объект секцией
         for (const sectionId in warehouseObjects) {
-            if (warehouseObjects[sectionId].mesh === object) {
+            if (warehouseObjects[sectionId].mesh === object || warehouseObjects[sectionId].wireframe.children.includes(object)) {
                 selectSection(sectionId);
                 return;
             }
@@ -707,7 +917,7 @@ function onMouseClick(event) {
     }
 }
 
-// Выбор секции
+// Выбор секции с улучшенным выделением 
 function selectSection(sectionId) {
     // Сбрасываем предыдущий выбор
     resetSelections();
@@ -718,8 +928,17 @@ function selectSection(sectionId) {
     if (warehouseObjects[sectionId]) {
         // Выделяем объект в 3D
         const mesh = warehouseObjects[sectionId].mesh;
-        mesh.material.color.set(0x1976d2);
-        mesh.material.opacity = 0.8;
+        const wireframe = warehouseObjects[sectionId].wireframe;
+        
+        // Подсвечиваем секцию, делая её более яркой и менее прозрачной
+        mesh.material.color.set(0x3498db);
+        mesh.material.opacity = 0.75;
+        
+        // Делаем каркас более заметным
+        if (wireframe) {
+            wireframe.material.color.set(0x3498db);
+            wireframe.material.opacity = 0.8;
+        }
         
         // Получаем позицию объекта
         const position = mesh.position.clone();
@@ -727,12 +946,19 @@ function selectSection(sectionId) {
         // Плавное перемещение камеры к выбранной секции
         new TWEEN.Tween(camera.position)
             .to({
-                x: position.x + 200,
-                y: 300,
-                z: position.z + 200
+                x: position.x + 150,
+                y: 250,
+                z: position.z + 150
             }, 1000)
             .easing(TWEEN.Easing.Cubic.Out)
+            .onComplete(() => {
+                // Разрешаем управление камерой после завершения анимации
+                controls.enabled = true;
+            })
             .start();
+        
+        // Временно отключаем управление камерой на время анимации
+        controls.enabled = false;
         
         // Перемещаем цель камеры на выбранную секцию
         new TWEEN.Tween(controls.target)
@@ -749,23 +975,75 @@ function selectSection(sectionId) {
     }
 }
 
-// Выбор паллеты
+// Выбор паллеты с улучшенным выделением
 function selectPallet(palletId) {
     // Сбрасываем предыдущие выборы
     resetSelections();
     
     if (palletObjects[palletId]) {
-        // Меняем материал выбранной паллеты
-        const originalMaterial = palletObjects[palletId].mesh.material;
-        const selectedMaterial = originalMaterial.clone();
-        selectedMaterial.emissive.set(0x333333); // Добавляем свечение
-        selectedMaterial.emissiveIntensity = 0.5;
-        selectedMaterial.needsUpdate = true;
+        // Меняем цвет выбранной паллеты
+        const palletMesh = palletObjects[palletId].mesh;
+        const originalColor = palletMesh.material.color.clone();
         
-        // Сохраняем исходный материал
-        palletObjects[palletId].originalMaterial = originalMaterial;
-        // Устанавливаем новый материал
-        palletObjects[palletId].mesh.material = selectedMaterial;
+        // Сохраняем оригинальный цвет
+        palletObjects[palletId].originalColor = originalColor;
+        
+        // Устанавливаем более яркий и заметный цвет
+        palletMesh.material.color.set(0xf39c12); // Яркий оранжевый
+        palletMesh.material.opacity = 1.0;        // Полная непрозрачность
+        
+        // Добавляем световое выделение
+        const highlightLight = new THREE.PointLight(0xf39c12, 1, 100);
+        highlightLight.position.copy(palletMesh.position);
+        highlightLight.position.y += 50;
+        scene.add(highlightLight);
+        
+        // Сохраняем ссылку на свет для последующего удаления
+        palletObjects[palletId].highlightLight = highlightLight;
+        
+        // Анимация покачивания
+        const startY = palletMesh.position.y;
+        const animatePallet = function() {
+            const time = Date.now() * 0.001;
+            palletMesh.position.y = startY + Math.sin(time * 2) * 2;
+            
+            if (palletObjects[palletId] && palletObjects[palletId].highlightLight) {
+                requestAnimationFrame(animatePallet);
+            }
+        };
+        animatePallet();
+        
+        // Получаем позицию объекта для перемещения камеры
+        const position = new THREE.Vector3().copy(palletMesh.position);
+        position.y = 0; // Сбрасываем Y, так как это положение в группе
+        position.add(palletObjects[palletId].group.position);
+        
+        // Плавное перемещение камеры к выбранной паллете
+        new TWEEN.Tween(camera.position)
+            .to({
+                x: position.x + 100,
+                y: 150,
+                z: position.z + 100
+            }, 1000)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .onComplete(() => {
+                // Разрешаем управление камерой после завершения анимации
+                controls.enabled = true;
+            })
+            .start();
+        
+        // Временно отключаем управление камерой на время анимации
+        controls.enabled = false;
+        
+        // Перемещаем цель камеры на выбранную паллету
+        new TWEEN.Tween(controls.target)
+            .to({
+                x: position.x,
+                y: position.y + 30, // Немного выше центра паллеты
+                z: position.z
+            }, 1000)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .start();
         
         // Обновляем информационную панель
         updateInfoPanel("pallet", palletId);
@@ -779,110 +1057,331 @@ function resetSelections() {
     // Сбрасываем выделение секции
     if (selectedSection && warehouseObjects[selectedSection]) {
         const prevMesh = warehouseObjects[selectedSection].mesh;
+        const wireframe = warehouseObjects[selectedSection].wireframe;
+        
+        // Возвращаем исходный цвет и прозрачность
         prevMesh.material.color.set(warehouseObjects[selectedSection].data.color);
-        prevMesh.material.opacity = 0.5;
+        prevMesh.material.opacity = 0.6;
+        
+        // Возвращаем каркас к исходному виду
+        if (wireframe) {
+            wireframe.material.color.set(0x000000);
+            wireframe.material.opacity = 0.3;
+        }
     }
     
     // Сбрасываем выделение всех паллет
     Object.keys(palletObjects).forEach(id => {
-        const palletMesh = palletObjects[id].mesh;
-        palletMesh.material.emissive.set(0x000000);
-        palletMesh.material.opacity = 0.8;
+        const palletObj = palletObjects[id];
+        
+        // Возвращаем оригинальный цвет, если он был сохранен
+        if (palletObj.originalColor) {
+            palletObj.mesh.material.color.copy(palletObj.originalColor);
+            palletObj.mesh.material.opacity = 0.85;
+            delete palletObj.originalColor;
+        }
+        
+        // Удаляем подсветку, если она была добавлена
+        if (palletObj.highlightLight) {
+            scene.remove(palletObj.highlightLight);
+            delete palletObj.highlightLight;
+        }
+        
+        // Сбрасываем анимацию покачивания, возвращая на исходную позицию
+        if (palletObj.mesh.position.y !== palletObj.data.height/2 + 12) {
+            palletObj.mesh.position.y = palletObj.data.height/2 + 12;
+        }
     });
     
     selectedSection = null;
 }
 
-// Обновление информационной панели с деталями о выбранном объекте
+// Функция для обновления информационной панели
 function updateInfoPanel(type, id) {
-    const infoPanel = document.getElementById('section-info');
-    if (!infoPanel) return;
+    const infoPanel = document.getElementById('info-panel');
+    const sectionInfo = document.getElementById('section-info');
     
-    let html = '';
-    
-    if (type === "section" && warehouseObjects[id]) {
-        const section = warehouseObjects[id].data;
-        const sectionInfo = warehouseData.sectionInfo && warehouseData.sectionInfo[id] 
-            ? warehouseData.sectionInfo[id] 
-            : { description: "Информация отсутствует", capacity: "Не указано", status: "Не указано" };
-        
-        html = `
-            <h4>Секция ${id}</h4>
-            <p><strong>Описание:</strong> ${sectionInfo.description}</p>
-            <p><strong>Размеры:</strong> ${section.width} x ${section.height} x ${section.depth} см</p>
-            <p><strong>Вместимость:</strong> ${sectionInfo.capacity}</p>
-            <p><strong>Статус:</strong> ${sectionInfo.status}</p>
-        `;
-    } else if (type === "pallet" && palletObjects[id]) {
-        const pallet = palletObjects[id].data;
-        
-        html = `
-            <div class="pallet-info">
-                <h4>Паллета ${id}</h4>
-                <p><strong>Размеры:</strong> ${pallet.width} x ${pallet.height} x ${pallet.depth} см</p>
-                <p><strong>Заказ:</strong> ${pallet.orderNumber || 'Не указан'}</p>
-                <p><strong>Статус:</strong> ${pallet.status || 'Не указан'}</p>
-                <p><strong>Вес:</strong> ${pallet.totalWeight || 0} кг</p>
-            `;
-        
-        if (pallet.items && pallet.items.length > 0) {
-            html += `<p><strong>Содержимое:</strong></p>
-            <ul class="items-list">`;
-            
-            pallet.items.forEach(item => {
-                html += `<li>${item.name} - ${item.quantity} шт. (${item.weight * item.quantity} кг)</li>`;
-            });
-            
-            html += `</ul>`;
-        }
-        
-        html += `</div>`;
-    } else {
-        html = `<p>Выберите секцию или паллету для просмотра информации</p>`;
+    if (!infoPanel || !sectionInfo) {
+        console.error("Элементы информационной панели не найдены");
+        return;
     }
     
-    infoPanel.innerHTML = html;
+    // Очищаем предыдущую информацию
+    sectionInfo.innerHTML = '';
+    
+    // Добавляем класс выделения
+    infoPanel.classList.add('has-selection');
+    
+    if (type === 'section' && id) {
+        // Получаем информацию о секции
+        const sectionData = warehouseData.sectionInfo[id];
+        const section = warehouseData.sections.find(s => s.id === id);
+        
+        if (sectionData) {
+            // Создаем структуру информации о секции
+            const infoHeader = document.createElement('div');
+            infoHeader.className = 'warehouse-info-header';
+            
+            // ID секции
+            const sectionIdElement = document.createElement('div');
+            sectionIdElement.className = 'section-id';
+            sectionIdElement.textContent = `Секция ${id}`;
+            infoHeader.appendChild(sectionIdElement);
+            
+            // Статус секции
+            const statusElement = document.createElement('div');
+            statusElement.className = 'section-status';
+            statusElement.textContent = sectionData.status || 'Доступно';
+            statusElement.style.backgroundColor = 'rgba(25, 118, 210, 0.1)';
+            statusElement.style.color = '#1976d2';
+            infoHeader.appendChild(statusElement);
+            
+            sectionInfo.appendChild(infoHeader);
+            
+            // Основная информация
+            const infoContent = document.createElement('div');
+            infoContent.className = 'warehouse-info-content';
+            
+            // Описание
+            const descriptionItem = document.createElement('div');
+            descriptionItem.className = 'info-item';
+            const descriptionLabel = document.createElement('div');
+            descriptionLabel.className = 'info-label';
+            descriptionLabel.textContent = 'Описание';
+            descriptionItem.appendChild(descriptionLabel);
+            
+            const descriptionValue = document.createElement('div');
+            descriptionValue.className = 'info-value';
+            descriptionValue.textContent = sectionData.description || 'Нет описания';
+            descriptionItem.appendChild(descriptionValue);
+            
+            infoContent.appendChild(descriptionItem);
+            
+            // Вместимость
+            const capacityItem = document.createElement('div');
+            capacityItem.className = 'info-item';
+            const capacityLabel = document.createElement('div');
+            capacityLabel.className = 'info-label';
+            capacityLabel.textContent = 'Макс. вместимость';
+            capacityItem.appendChild(capacityLabel);
+            
+            const capacityValue = document.createElement('div');
+            capacityValue.className = 'info-value';
+            capacityValue.textContent = sectionData.capacity || 'Не указано';
+            capacityItem.appendChild(capacityValue);
+            
+            infoContent.appendChild(capacityItem);
+            
+            // Размеры
+            if (section) {
+                const sizeItem = document.createElement('div');
+                sizeItem.className = 'info-item';
+                const sizeLabel = document.createElement('div');
+                sizeLabel.className = 'info-label';
+                sizeLabel.textContent = 'Размеры (см)';
+                sizeItem.appendChild(sizeLabel);
+                
+                const sizeValue = document.createElement('div');
+                sizeValue.className = 'info-value';
+                sizeValue.textContent = `${section.width}×${section.depth}×${section.height}`;
+                sizeItem.appendChild(sizeValue);
+                
+                infoContent.appendChild(sizeItem);
+                
+                // Координаты
+                const coordItem = document.createElement('div');
+                coordItem.className = 'info-item';
+                const coordLabel = document.createElement('div');
+                coordLabel.className = 'info-label';
+                coordLabel.textContent = 'Координаты';
+                coordItem.appendChild(coordLabel);
+                
+                const coordValue = document.createElement('div');
+                coordValue.className = 'info-value';
+                coordValue.textContent = `x:${section.x}, z:${section.z}`;
+                coordItem.appendChild(coordValue);
+                
+                infoContent.appendChild(coordItem);
+            }
+            
+            sectionInfo.appendChild(infoContent);
+        } else {
+            sectionInfo.innerHTML = `<p>Информация о секции ${id} отсутствует</p>`;
+        }
+    } else if (type === 'pallet' && id) {
+        // Получаем информацию о паллете
+        const pallet = warehouseData.pallets.find(p => p.id === id);
+        
+        if (pallet) {
+            // Создаем заголовок информации о паллете
+            const palletInfoHeader = document.createElement('div');
+            palletInfoHeader.className = 'pallet-info';
+            
+            const palletTitle = document.createElement('h4');
+            palletTitle.textContent = `Паллета: ${pallet.id}`;
+            palletInfoHeader.appendChild(palletTitle);
+            
+            // Заказ
+            const orderInfo = document.createElement('p');
+            orderInfo.innerHTML = `<strong>Заказ:</strong> ${pallet.orderNumber}`;
+            palletInfoHeader.appendChild(orderInfo);
+            
+            // Статус
+            const statusInfo = document.createElement('p');
+            statusInfo.innerHTML = `<strong>Статус:</strong> ${pallet.status}`;
+            palletInfoHeader.appendChild(statusInfo);
+            
+            // Вес
+            const weightInfo = document.createElement('p');
+            weightInfo.innerHTML = `<strong>Общий вес:</strong> ${pallet.totalWeight} кг`;
+            palletInfoHeader.appendChild(weightInfo);
+            
+            // Размеры
+            const sizeInfo = document.createElement('p');
+            sizeInfo.innerHTML = `<strong>Размеры:</strong> ${pallet.width}×${pallet.depth}×${pallet.height} см`;
+            palletInfoHeader.appendChild(sizeInfo);
+            
+            // Товары
+            if (pallet.items && pallet.items.length > 0) {
+                const itemsTitle = document.createElement('p');
+                itemsTitle.innerHTML = '<strong>Товары:</strong>';
+                palletInfoHeader.appendChild(itemsTitle);
+                
+                const itemsList = document.createElement('ul');
+                itemsList.className = 'items-list';
+                
+                pallet.items.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.name} - ${item.quantity} шт., ${item.weight} кг`;
+                    itemsList.appendChild(listItem);
+                });
+                
+                palletInfoHeader.appendChild(itemsList);
+            }
+            
+            sectionInfo.appendChild(palletInfoHeader);
+        } else {
+            sectionInfo.innerHTML = `<p>Информация о паллете ${id} отсутствует</p>`;
+        }
+    } else {
+        infoPanel.classList.remove('has-selection');
+        sectionInfo.innerHTML = '<p>Выберите секцию или паллету для просмотра информации</p>';
+    }
 }
 
-// Добавление подсказки по навигации
-function addNavigationHelp() {
-    const helpContainer = document.createElement('div');
-    helpContainer.className = 'navigation-help';
+// Функция для переключения видимости информационной панели
+function toggleInfoPanel() {
+    const warehouseView = document.querySelector('.warehouse-3d-view');
+    const toggleButton = document.querySelector('.toggle-info-panel');
+    isInfoPanelHidden = !isInfoPanelHidden;
     
-    helpContainer.innerHTML = `
-        <h4>Управление камерой:</h4>
-        <ul>
-            <li><strong>Вращение:</strong> Зажмите левую кнопку мыши и двигайте</li>
-            <li><strong>Перемещение:</strong> Зажмите правую кнопку мыши и двигайте</li>
-            <li><strong>Масштаб:</strong> Прокрутите колесико мыши</li>
-        </ul>
-    `;
+    if (isInfoPanelHidden) {
+        warehouseView.classList.add('hide-info-panel');
+        toggleButton.querySelector('i').className = 'fas fa-chevron-right';
+    } else {
+        warehouseView.classList.remove('hide-info-panel');
+        toggleButton.querySelector('i').className = 'fas fa-chevron-left';
+    }
     
-    document.getElementById('warehouse-view').appendChild(helpContainer);
+    // Обновляем размеры в соответствии с новым состоянием
+    setTimeout(onWindowResize, 300);
 }
 
-// Обработчик изменения размера окна
+// Функция для переключения показа информационной панели в полноэкранном режиме
+function toggleFullscreenInfoPanel() {
+    const warehouseView = document.querySelector('.warehouse-3d-view');
+    
+    if (warehouseView.classList.contains('show-info')) {
+        warehouseView.classList.remove('show-info');
+        document.querySelector('.toggle-info-button').innerHTML = '<i class="fas fa-info-circle"></i> Показать информацию';
+    } else {
+        warehouseView.classList.add('show-info');
+        document.querySelector('.toggle-info-button').innerHTML = '<i class="fas fa-times"></i> Скрыть информацию';
+    }
+    
+    // Обновляем размеры в соответствии с новым состоянием
+    setTimeout(onWindowResize, 300);
+}
+
+// Функция для добавления элементов управления информационной панелью
+function addInfoPanelControls() {
+    // Не добавляем на мобильных устройствах
+    if (isMobileDevice) return;
+    
+    const warehouseView = document.querySelector('.warehouse-3d-view');
+    
+    // Добавляем кнопку для переключения видимости информационной панели
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'toggle-info-panel';
+    toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    toggleButton.addEventListener('click', toggleInfoPanel);
+    const infoPanel = document.querySelector('.info-panel');
+    
+    // Добавляем кнопку внутрь информационной панели вместо warehouse-3d-view
+    if (infoPanel) {
+        infoPanel.appendChild(toggleButton);
+    } else {
+        // Если панель не найдена, добавим в контейнер (старое поведение)
+        warehouseView.appendChild(toggleButton);
+    }
+}
+
+// Функция для обработки изменения размера окна
 function onWindowResize() {
+    // Проверяем флаг мобильного устройства
+    isMobileDevice = window.innerWidth <= 768;
+    
     const warehouseView = document.getElementById('warehouse-view');
     if (!warehouseView) return;
     
-    const containerWidth = warehouseView.clientWidth;
-    const containerHeight = warehouseView.clientHeight;
+    const width = warehouseView.clientWidth;
+    const height = warehouseView.clientHeight;
     
-    if (camera) {
-        camera.aspect = containerWidth / containerHeight;
-        camera.updateProjectionMatrix();
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    
+    renderer.setSize(width, height);
+    
+    // Обновляем CSS2D рендерер если он существует
+    if (typeof updateLabelRenderer === 'function') {
+        updateLabelRenderer();
     }
     
-    if (renderer) {
-        renderer.setSize(containerWidth, containerHeight);
-    }
-    
-    // Обновляем размер CSS2D рендерера
-    if (labelRenderer) {
-        labelRenderer.setSize(containerWidth, containerHeight);
-    }
+    console.log(`Размер обновлен: ${width}x${height}`);
 }
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем, загружен ли уже Three.js
+    if (typeof THREE === 'undefined') {
+        console.error('Three.js не загружен');
+        return;
+    }
+    
+    const warehouseView = document.getElementById('warehouse-view');
+    if (!warehouseView) {
+        console.error("Элемент #warehouse-view не найден при инициализации");
+        return;
+    }
+    
+    try {
+        // Инициализируем 3D-сцену
+        init();
+        
+        // Добавляем элементы управления
+        addViewButtons();
+        
+        // Добавляем элементы управления информационной панелью
+        addInfoPanelControls();
+        
+        // Запускаем анимацию
+        animate();
+        
+        console.log('Инициализация 3D-визуализации завершена успешно');
+    } catch (e) {
+        console.error('Ошибка при инициализации 3D-визуализации:', e);
+    }
+});
 
 // Анимация
 function animate() {
@@ -909,5 +1408,8 @@ function animate() {
     }
 }
 
-// Исключаем автоматическую инициализацию при загрузке страницы
-// window.addEventListener('load', init); 
+// Функция добавления блока с инструкциями по навигации - пустая
+function addNavigationHelp() {
+    // Функция больше не добавляет никаких элементов
+    return;
+} 

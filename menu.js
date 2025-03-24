@@ -7,11 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const menuToggle = document.getElementById('menu-toggle');
   const sidebar = document.getElementById('sidebar');
   const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+  const dashboard = document.querySelector('.dashboard');
 
   // Отображаем имя пользователя, полученное при авторизации
   // В реальном приложении это будет получено из сессии или локального хранилища
   const username = localStorage.getItem('username') || 'Admin';
   usernameDisplay.textContent = username;
+  
+  // Флаг для отслеживания состояния компактной боковой панели
+  let isCompactMode = false;
 
   // Экспортируем функцию переключения вкладок
   window.switchTab = function(sectionId) {
@@ -37,13 +41,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Вызываем специальную обработку для раздела "Склад"
-    if (sectionId === 'warehouse' && typeof activateWarehouseTab === 'function') {
+    if (sectionId === 'warehouse') {
       console.log("Вызываем activateWarehouseTab из menu.js");
-      setTimeout(activateWarehouseTab, 100);
+      
+      // Активируем компактный режим меню для склада на десктопах
+      if (window.innerWidth >= 768) {
+        toggleCompactSidebar(true);
+      }
+      
+      // Вызываем инициализацию склада
+      if (typeof activateWarehouseTab === 'function') {
+        setTimeout(activateWarehouseTab, 100);
+      }
+    } else {
+      // Для других разделов отключаем компактный режим
+      if (isCompactMode) {
+        toggleCompactSidebar(false);
+      }
     }
     
     return true;
   };
+
+  // Функция для переключения компактного режима боковой панели
+  function toggleCompactSidebar(enable) {
+    if (enable) {
+      dashboard.classList.add('compact-sidebar');
+      isCompactMode = true;
+    } else {
+      dashboard.classList.remove('compact-sidebar');
+      isCompactMode = false;
+    }
+  }
 
   // Обработка переключения между разделами меню
   menuLinks.forEach(link => {
@@ -90,12 +119,43 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.innerWidth >= 768 && sidebar.classList.contains('active')) {
       toggleMobileMenu();
     }
+    
+    // При изменении размера окна проверяем, нужно ли использовать компактный режим
+    const isWarehouseActive = document.getElementById('warehouse').classList.contains('active');
+    if (window.innerWidth >= 768 && isWarehouseActive && !isCompactMode) {
+      toggleCompactSidebar(true);
+    } else if (window.innerWidth < 768 && isCompactMode) {
+      toggleCompactSidebar(false);
+    }
+  });
+
+  // Добавим стабильность для анимации расширения боковой панели
+  sidebar.addEventListener('mouseenter', function() {
+    if (isCompactMode) {
+        dashboard.classList.add('sidebar-expanded');
+        // Добавляем таймаут, чтобы избежать дергания при быстром движении мыши
+        clearTimeout(window.sidebarTimer);
+    }
+  });
+
+  sidebar.addEventListener('mouseleave', function() {
+    if (isCompactMode) {
+        // Добавляем небольшую задержку перед сворачиванием
+        window.sidebarTimer = setTimeout(() => {
+            dashboard.classList.remove('sidebar-expanded');
+        }, 100);
+    }
   });
 
   // Пример генерации данных для демонстрации
   function initDemoData() {
     // Здесь можно добавить дополнительную логику для демонстрации функциональности
     console.log('Демо-данные загружены');
+    
+    // Проверяем, активна ли вкладка склада при загрузке
+    if (document.getElementById('warehouse').classList.contains('active') && window.innerWidth >= 768) {
+      toggleCompactSidebar(true);
+    }
   }
 
   // Инициализация демо-данных

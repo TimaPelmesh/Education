@@ -1,0 +1,229 @@
+/* Стили для интеграции 3D-визуализации склада в основное меню */
+
+/* Контейнер для 3D-визуализации склада */
+.warehouse-container {
+    width: 100%;
+    height: calc(100vh - 180px); /* Высота контента минус заголовок и отступы */
+    overflow: hidden;
+    margin-top: 20px;
+    position: relative;
+}
+
+.warehouse-3d-view {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+}
+
+/* Основная часть с 3D визуализацией */
+#warehouse-view {
+    flex: 1;
+    background-color: #f5f5f5;
+    position: relative;
+    min-height: 400px;
+    width: 100%;
+}
+
+#warehouse-view canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Информационная панель */
+.info-panel {
+    height: 150px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+    padding: 15px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* Стили для кнопок управления видом */
+.view-buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    display: flex;
+    gap: 5px;
+}
+
+.view-buttons button {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-buttons button:hover {
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Стили для метки ячейки */
+.cell-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 3px 6px;
+    border-radius: 3px;
+    pointer-events: none;
+    user-select: none;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для метки паллеты */
+.pallet-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #444;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 3px 6px;
+    border-radius: 3px;
+    pointer-events: none;
+    user-select: none;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Стили для меток координатной сетки */
+.grid-label {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 2px;
+    pointer-events: none;
+    user-select: none;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для адаптивной верстки */
+@media (max-width: 768px) {
+    .warehouse-container {
+        height: calc(100vh - 150px);
+    }
+    
+    .info-panel {
+        height: 130px;
+    }
+    
+    .view-buttons button {
+        font-size: 12px;
+        padding: 3px 8px;
+    }
+    
+    #warehouse-view {
+        min-height: 300px;
+    }
+}
+
+/* Предотвращаем конфликты стилей */
+#warehouse h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+/* Стили для выделенных секций */
+.selected-section {
+    color: #fff;
+    background-color: #1976d2;
+}
+
+/* Стили для размеров */
+.dimension-label {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Стили для размеров секций */
+.section-dimension {
+    background-color: rgba(40, 167, 69, 0.8);
+    font-size: 10px;
+    padding: 2px 6px;
+}
+
+/* Стили для паллет */
+.pallet-info {
+    padding: 15px;
+    background-color: #e3f2fd;
+    border-left: 4px solid #1976d2;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pallet-info h4 {
+    margin: 0 0 8px 0;
+    color: #1976d2;
+    font-size: 16px;
+}
+
+.pallet-info p {
+    margin: 5px 0;
+    color: #333;
+}
+
+.items-list {
+    margin: 8px 0 5px 20px;
+    padding: 0;
+}
+
+.items-list li {
+    margin-bottom: 4px;
+    color: #555;
+}
+
+/* Стили для инструментов навигации */
+.navigation-help {
+    position: absolute;
+    bottom: 160px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #333;
+    z-index: 100;
+    max-width: 300px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.navigation-help h4 {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    color: #1976d2;
+}
+
+.navigation-help ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.navigation-help li {
+    margin-bottom: 4px;
+} 

@@ -13,26 +13,46 @@ document.addEventListener('DOMContentLoaded', function() {
   const username = localStorage.getItem('username') || 'Admin';
   usernameDisplay.textContent = username;
 
+  // Экспортируем функцию переключения вкладок
+  window.switchTab = function(sectionId) {
+    // Удаляем активный класс со всех пунктов меню и разделов
+    menuLinks.forEach(item => {
+      item.parentElement.classList.remove('active');
+    });
+    
+    sections.forEach(section => {
+      section.classList.remove('active');
+    });
+    
+    // Добавляем активный класс выбранному пункту меню
+    const activeLink = document.querySelector(`.sidebar a[data-section="${sectionId}"]`);
+    if (activeLink) {
+      activeLink.parentElement.classList.add('active');
+    }
+    
+    // Активируем соответствующий раздел
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.classList.add('active');
+    }
+    
+    // Вызываем специальную обработку для раздела "Склад"
+    if (sectionId === 'warehouse' && typeof activateWarehouseTab === 'function') {
+      console.log("Вызываем activateWarehouseTab из menu.js");
+      setTimeout(activateWarehouseTab, 100);
+    }
+    
+    return true;
+  };
+
   // Обработка переключения между разделами меню
   menuLinks.forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
       
-      // Удаляем активный класс со всех пунктов меню и разделов
-      menuLinks.forEach(item => {
-        item.parentElement.classList.remove('active');
-      });
-      
-      sections.forEach(section => {
-        section.classList.remove('active');
-      });
-      
-      // Добавляем активный класс выбранному пункту меню
-      this.parentElement.classList.add('active');
-      
-      // Получаем ID раздела и активируем соответствующий раздел
+      // Получаем ID раздела и активируем его
       const sectionId = this.getAttribute('data-section');
-      document.getElementById(sectionId).classList.add('active');
+      window.switchTab(sectionId);
       
       // На мобильных устройствах закрываем меню после выбора
       if (window.innerWidth < 768) {

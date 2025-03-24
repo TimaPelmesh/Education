@@ -5,9 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KUDO® - Система оптимизации паллетизации</title>
     <link rel="stylesheet" href="menu-styles.css">
+    <link rel="stylesheet" href="warehouse-3d/styles.css">
+    <link rel="stylesheet" href="warehouse-3d/warehouse-menu-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="K.ico" type="image/x-icon">
     <link rel="shortcut icon" href="K.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/renderers/CSS2DRenderer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
 </head>
 <body>
     <header class="main-header">
@@ -213,9 +219,15 @@
 
             <section id="warehouse">
                 <h2><i class="fas fa-warehouse"></i> Карта склада</h2>
-                <div class="warehouse-layout">
-                    <div class="placeholder-content">
-                        <p>Здесь будет отображена интерактивная карта склада с секторами и проходами</p>
+                <div class="warehouse-container">
+                    <div class="warehouse-3d-view">
+                        <div id="warehouse-view"></div>
+                        <div class="info-panel" id="info-panel">
+                            <h3>Информация о секции</h3>
+                            <div id="section-info">
+                                <p>Выберите секцию для просмотра деталей</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -251,5 +263,8 @@
     </div>
 
     <script src="menu.js"></script>
+    <script src="warehouse-3d/warehouse-data.js"></script>
+    <script src="warehouse-3d/warehouse.js"></script>
+    <script src="warehouse-3d/warehouse-integration.js"></script>
 </body>
 </html>

@@ -295,27 +295,57 @@ function addGridLabels() {
 function addViewButtons() {
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'view-buttons';
-    buttonContainer.style.position = 'absolute';
-    buttonContainer.style.top = '10px';
-    buttonContainer.style.right = '10px';
-    buttonContainer.style.zIndex = '1000';
+    
+    // Определяем, используется ли мобильное устройство
+    const isMobile = window.innerWidth <= 768;
+    
+    // Устанавливаем позиционирование в зависимости от устройства
+    if (isMobile) {
+        // Для мобильных - позиционирование относительно верхнего левого угла
+        buttonContainer.style.position = 'absolute';
+        buttonContainer.style.top = '60px';
+        buttonContainer.style.left = '10px';
+        buttonContainer.style.zIndex = '50';
+    } else {
+        // Для десктопов - позиционирование относительно верхнего правого угла
+        buttonContainer.style.position = 'absolute';
+        buttonContainer.style.top = '10px';
+        buttonContainer.style.right = '10px';
+        buttonContainer.style.zIndex = '1000';
+    }
     
     // Кнопка вида сверху
     const topViewBtn = document.createElement('button');
     topViewBtn.innerHTML = '<i class="fas fa-map"></i> Вид сверху';
     topViewBtn.onclick = setTopView;
     topViewBtn.style.marginRight = '5px';
-    topViewBtn.style.padding = '5px 10px';
     buttonContainer.appendChild(topViewBtn);
     
     // Кнопка изометрического вида
     const isoViewBtn = document.createElement('button');
     isoViewBtn.innerHTML = '<i class="fas fa-cube"></i> Изометрия';
     isoViewBtn.onclick = setIsometricView;
-    isoViewBtn.style.padding = '5px 10px';
     buttonContainer.appendChild(isoViewBtn);
     
+    // Добавляем контейнер кнопок в DOM
     document.getElementById('warehouse-view').appendChild(buttonContainer);
+    
+    // Добавляем обработчик изменения размера окна для адаптивности
+    window.addEventListener('resize', function() {
+        const isMobileNow = window.innerWidth <= 768;
+        
+        if (isMobileNow) {
+            buttonContainer.style.right = 'auto';
+            buttonContainer.style.left = '10px';
+            buttonContainer.style.top = '60px';
+            buttonContainer.style.zIndex = '50';
+        } else {
+            buttonContainer.style.left = 'auto';
+            buttonContainer.style.right = '10px';
+            buttonContainer.style.top = '10px';
+            buttonContainer.style.zIndex = '1000';
+        }
+    });
 }
 
 // Установка вида камеры сверху
@@ -940,36 +970,6 @@ function selectSection(sectionId) {
             wireframe.material.opacity = 0.8;
         }
         
-        // Получаем позицию объекта
-        const position = mesh.position.clone();
-        
-        // Плавное перемещение камеры к выбранной секции
-        new TWEEN.Tween(camera.position)
-            .to({
-                x: position.x + 150,
-                y: 250,
-                z: position.z + 150
-            }, 1000)
-            .easing(TWEEN.Easing.Cubic.Out)
-            .onComplete(() => {
-                // Разрешаем управление камерой после завершения анимации
-                controls.enabled = true;
-            })
-            .start();
-        
-        // Временно отключаем управление камерой на время анимации
-        controls.enabled = false;
-        
-        // Перемещаем цель камеры на выбранную секцию
-        new TWEEN.Tween(controls.target)
-            .to({
-                x: position.x,
-                y: position.y,
-                z: position.z
-            }, 1000)
-            .easing(TWEEN.Easing.Cubic.Out)
-            .start();
-        
         // Обновляем информационную панель
         updateInfoPanel("section", sectionId);
     }
@@ -1012,38 +1012,6 @@ function selectPallet(palletId) {
             }
         };
         animatePallet();
-        
-        // Получаем позицию объекта для перемещения камеры
-        const position = new THREE.Vector3().copy(palletMesh.position);
-        position.y = 0; // Сбрасываем Y, так как это положение в группе
-        position.add(palletObjects[palletId].group.position);
-        
-        // Плавное перемещение камеры к выбранной паллете
-        new TWEEN.Tween(camera.position)
-            .to({
-                x: position.x + 100,
-                y: 150,
-                z: position.z + 100
-            }, 1000)
-            .easing(TWEEN.Easing.Cubic.Out)
-            .onComplete(() => {
-                // Разрешаем управление камерой после завершения анимации
-                controls.enabled = true;
-            })
-            .start();
-        
-        // Временно отключаем управление камерой на время анимации
-        controls.enabled = false;
-        
-        // Перемещаем цель камеры на выбранную паллету
-        new TWEEN.Tween(controls.target)
-            .to({
-                x: position.x,
-                y: position.y + 30, // Немного выше центра паллеты
-                z: position.z
-            }, 1000)
-            .easing(TWEEN.Easing.Cubic.Out)
-            .start();
         
         // Обновляем информационную панель
         updateInfoPanel("pallet", palletId);
@@ -1269,18 +1237,82 @@ function updateInfoPanel(type, id) {
     }
 }
 
+// Функция для добавления кнопки управления информационной панелью на мобильных устройствах
+function addMobileInfoPanelControls() {
+    // Проверяем, используется ли мобильное устройство
+    if (window.innerWidth <= 768) {
+        const warehouseView = document.getElementById('warehouse-view');
+        if (!warehouseView) return;
+        
+        // Создаем кнопку для мобильных устройств
+        const mobileToggleBtn = document.createElement('button');
+        mobileToggleBtn.className = 'mobile-toggle-info';
+        mobileToggleBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
+        mobileToggleBtn.setAttribute('aria-label', 'Показать/скрыть информацию');
+        mobileToggleBtn.title = 'Показать/скрыть информацию';
+        
+        // Добавляем обработчик события для переключения видимости панели
+        mobileToggleBtn.addEventListener('click', toggleInfoPanel);
+        
+        // Добавляем кнопку в DOM
+        warehouseView.appendChild(mobileToggleBtn);
+    }
+    
+    // Добавляем обработчик изменения размера окна
+    window.addEventListener('resize', function() {
+        const warehouseView = document.getElementById('warehouse-view');
+        if (!warehouseView) return;
+        
+        const isMobileNow = window.innerWidth <= 768;
+        let mobileToggleBtn = document.querySelector('.mobile-toggle-info');
+        
+        if (isMobileNow && !mobileToggleBtn) {
+            // Если устройство мобильное, но кнопки нет - добавляем
+            mobileToggleBtn = document.createElement('button');
+            mobileToggleBtn.className = 'mobile-toggle-info';
+            mobileToggleBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
+            mobileToggleBtn.setAttribute('aria-label', 'Показать/скрыть информацию');
+            mobileToggleBtn.title = 'Показать/скрыть информацию';
+            
+            mobileToggleBtn.addEventListener('click', toggleInfoPanel);
+            warehouseView.appendChild(mobileToggleBtn);
+        } else if (!isMobileNow && mobileToggleBtn) {
+            // Если устройство не мобильное, но кнопка есть - удаляем
+            mobileToggleBtn.remove();
+        }
+    });
+}
+
 // Функция для переключения видимости информационной панели
 function toggleInfoPanel() {
     const warehouseView = document.querySelector('.warehouse-3d-view');
     const toggleButton = document.querySelector('.toggle-info-panel');
+    const mobileToggleButton = document.querySelector('.mobile-toggle-info');
+    
     isInfoPanelHidden = !isInfoPanelHidden;
     
     if (isInfoPanelHidden) {
         warehouseView.classList.add('hide-info-panel');
-        toggleButton.querySelector('i').className = 'fas fa-chevron-right';
+        
+        // Обновляем иконки на десктопной и мобильной кнопках
+        if (toggleButton) {
+            toggleButton.querySelector('i').className = 'fas fa-chevron-right';
+        }
+        
+        if (mobileToggleButton) {
+            mobileToggleButton.innerHTML = '<i class="fas fa-info-circle"></i>';
+        }
     } else {
         warehouseView.classList.remove('hide-info-panel');
-        toggleButton.querySelector('i').className = 'fas fa-chevron-left';
+        
+        // Обновляем иконки на десктопной и мобильной кнопках
+        if (toggleButton) {
+            toggleButton.querySelector('i').className = 'fas fa-chevron-left';
+        }
+        
+        if (mobileToggleButton) {
+            mobileToggleButton.innerHTML = '<i class="fas fa-times"></i>';
+        }
     }
     
     // Обновляем размеры в соответствии с новым состоянием
@@ -1376,6 +1408,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Запускаем анимацию
         animate();
+        
+        // Добавляем элементы управления информационной панелью на мобильных устройствах
+        addMobileInfoPanelControls();
         
         console.log('Инициализация 3D-визуализации завершена успешно');
     } catch (e) {

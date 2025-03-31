@@ -99,9 +99,10 @@ function init() {
     // Основной направленный свет с более мягкими тенями
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Уменьшаем интенсивность
     directionalLight.position.set(warehouseData.dimensions.width * 0.5, 800, warehouseData.dimensions.length * 0.5);
-    directionalLight.castShadow = true;
+    directionalLight.castShadow = false;
     
-    // Настройка теней от directionalLight для более мягкого эффекта
+    // Закомментированы настройки теней, так как они отключены
+    /*
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.far = 3000;
@@ -111,6 +112,7 @@ function init() {
     directionalLight.shadow.camera.bottom = -1500;
     directionalLight.shadow.bias = -0.001; // Устраняем артефакты
     directionalLight.shadow.radius = 2; // Смягчаем края теней
+    */
     scene.add(directionalLight);
     
     // Добавляем второй направленный свет с противоположной стороны
@@ -118,9 +120,9 @@ function init() {
     directionalLight2.position.set(warehouseData.dimensions.width * 0.5, 600, -500);
     scene.add(directionalLight2);
 
-    // Включаем тени с улучшенным качеством
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Мягкие тени
+    // Отключаем тени
+    renderer.shadowMap.enabled = false;
+    //renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Мягкие тени
 
     // Добавляем пол с сеткой
     createFloor();
@@ -202,7 +204,7 @@ function createFloor() {
     floor.position.y = -5; // Немного ниже уровня секций
     floor.position.x = warehouseData.dimensions.width / 2;
     floor.position.z = warehouseData.dimensions.length / 2;
-    floor.receiveShadow = true; // Пол получает тени
+    floor.receiveShadow = false; // Пол не получает тени
     scene.add(floor);
     
     // Добавляем основную сетку с более тонкими и менее заметными линиями
@@ -522,11 +524,10 @@ function createWarehouseSections() {
             section.width, section.height, section.depth
         );
         
-        // Создаем материал секции с улучшенной прозрачностью и цветом
+        // Создаем материал секции с заливкой цветом без прозрачности
         const material = new THREE.MeshStandardMaterial({
             color: section.color,
-            transparent: true,
-            opacity: 0.6,
+            transparent: false,
             roughness: 0.5,
             metalness: 0.0,
             side: THREE.DoubleSide
@@ -542,9 +543,9 @@ function createWarehouseSections() {
             section.z + section.depth / 2
         );
         
-        // Добавляем тень
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
+        // Отключаем тени
+        mesh.castShadow = false;
+        mesh.receiveShadow = false;
         
         // Добавляем в сцену
         scene.add(mesh);
@@ -960,9 +961,9 @@ function selectSection(sectionId) {
         const mesh = warehouseObjects[sectionId].mesh;
         const wireframe = warehouseObjects[sectionId].wireframe;
         
-        // Подсвечиваем секцию, делая её более яркой и менее прозрачной
+        // Подсвечиваем секцию, делая её синей
         mesh.material.color.set(0x3498db);
-        mesh.material.opacity = 0.75;
+        // Не меняем прозрачность, так как секции теперь непрозрачные
         
         // Делаем каркас более заметным
         if (wireframe) {
@@ -1027,9 +1028,9 @@ function resetSelections() {
         const prevMesh = warehouseObjects[selectedSection].mesh;
         const wireframe = warehouseObjects[selectedSection].wireframe;
         
-        // Возвращаем исходный цвет и прозрачность
-        prevMesh.material.color.set(warehouseObjects[selectedSection].data.color);
-        prevMesh.material.opacity = 0.6;
+        // Возвращаем исходный цвет (серый) и убираем прозрачность
+        prevMesh.material.color.set(warehouseObjects[selectedSection].data.color || "#aaa");
+        // Не устанавливаем opacity, так как секции теперь непрозрачные
         
         // Возвращаем каркас к исходному виду
         if (wireframe) {

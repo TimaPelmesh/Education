@@ -1,0 +1,45 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Вход в KUDO®</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=1.0.1">
+    <link rel="icon" href="K.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="K.ico" type="image/x-icon">
+  </head>
+  <body>
+    <div class="auth-container">
+      <form id="login-form" novalidate>
+        <h1>Вход</h1>
+        <div class="input-group">
+          <input type="text" id="username" placeholder="Логин" required>
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Пароль" required>
+        </div>
+        <div class="options">
+          <label>
+            <input type="checkbox" id="remember-me">
+            Запомнить меня
+          </label>
+          <a href="#" id="forgot-password">Восстановить пароль</a>
+        </div>
+        <button type="submit" id="login-btn">Авторизоваться</button>
+        <div id="loading-animation" class="hidden">Загрузка...</div>
+        <div class="register-link">
+          <p></p>
+        </div>
+      </form>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r140/three.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUDO® - Система оптимизации паллетизации</title>
+    <link rel="stylesheet" href="menu-styles.css">
+    <link rel="stylesheet" href="warehouse-3d/styles.css">
+    <link rel="stylesheet" href="warehouse-3d/warehouse-menu-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="K.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="K.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/renderers/CSS2DRenderer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo-container">
+            <button class="menu-toggle" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>KUDO<span>®</span></h1>
+        </div>
+        <div class="user-info">
+            <span id="username-display">Admin</span>
+            <button id="logout-btn">Выйти</button>
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <nav class="sidebar" id="sidebar">
+            <ul>
+                <li class="active">
+                    <a href="#" data-section="orders">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Заказы</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="warehouse">
+                        <i class="fas fa-warehouse"></i>
+                        <span>Склад</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="pallets">
+                        <i class="fas fa-pallet"></i>
+                        <span>Паллеты</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="operators">
+                        <i class="fas fa-users"></i>
+                        <span>Операторы</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="statistics">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Статистика</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <section id="orders" class="active">
+                <h2><i class="fas fa-shopping-cart"></i> Управление заказами</h2>
+                <div class="action-buttons">
+                    <button class="primary-btn"><i class="fas fa-plus"></i> Создать заказ</button>
+                    <button><i class="fas fa-file-import"></i> Импорт заказов</button>
+                </div>
+                
+                <!-- Обычная таблица (будет скрыта на мобильных) -->
+                <div class="data-table desktop-only">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>№ Заказа</th>
+                                <th>Статус</th>
+                                <th>Дата</th>
+                                <th>Товары</th>
+                                <th>Паллеты</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ORD-2023-001</td>
+                                <td><span class="status-active">В процессе</span></td>
+                                <td>15.07.2023</td>
+                                <td>24</td>
+                                <td>3</td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="action-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                                        <button class="action-btn"><i class="fas fa-magic"></i> Оптимизировать</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ORD-2023-002</td>
+                                <td><span class="status-complete">Завершен</span></td>
+                                <td>14.07.2023</td>
+                                <td>36</td>
+                                <td>4</td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="action-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ORD-2023-003</td>
+                                <td><span class="status-pending">Ожидание</span></td>
+                                <td>16.07.2023</td>
+                                <td>18</td>
+                                <td>2</td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="action-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                                        <button class="action-btn"><i class="fas fa-play"></i> Начать сборку</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Мобильная версия (карточки вместо таблицы) -->
+                <div class="mobile-cards mobile-only">
+                    <!-- Карточка 1 -->
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-number">ORD-2023-001</div>
+                            <div class="order-status status-active">В процессе</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Дата:</span>
+                                <span class="detail-value">15.07.2023</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Товары:</span>
+                                <span class="detail-value">24</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-value">3</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                            <button class="mobile-btn optimize-btn"><i class="fas fa-magic"></i> Оптимизировать</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Карточка 2 -->
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-number">ORD-2023-002</div>
+                            <div class="order-status status-complete">Завершен</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Дата:</span>
+                                <span class="detail-value">14.07.2023</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Товары:</span>
+                                <span class="detail-value">36</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-value">4</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Карточка 3 -->
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-number">ORD-2023-003</div>
+                            <div class="order-status status-pending">Ожидание</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Дата:</span>
+                                <span class="detail-value">16.07.2023</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Товары:</span>
+                                <span class="detail-value">18</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-value">2</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                            <button class="mobile-btn start-btn"><i class="fas fa-play"></i> Начать сборку</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="warehouse">
+                <h2><i class="fas fa-warehouse"></i> Карта склада</h2>
+                <div class="warehouse-container">
+                    <div class="warehouse-3d-view">
+                        <div id="warehouse-view"></div>
+                        <div class="info-panel" id="info-panel">
+                            <h3>Информация о секции</h3>
+                            <div id="section-info">
+                                <p>Выберите секцию для просмотра деталей</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pallets">
+                <h2><i class="fas fa-pallet"></i> Управление паллетами</h2>
+                <div class="placeholder-content">
+                    <p>Здесь будет функционал для просмотра и управления паллетами</p>
+                </div>
+            </section>
+
+            <section id="operators">
+                <h2><i class="fas fa-users"></i> Операторы и маршруты</h2>
+                <div class="placeholder-content">
+                    <p>Здесь будет функционал для управления операторами и их маршрутами</p>
+                </div>
+            </section>
+
+            <section id="statistics">
+                <h2><i class="fas fa-chart-line"></i> Статистика и аналитика</h2>
+                <div class="placeholder-content">
+                    <p>Здесь будут отображены графики эффективности работы системы</p>
+                </div>
+            </section>
+
+            <section id="settings">
+                <h2><i class="fas fa-cog"></i> Настройки системы</h2>
+                <div class="placeholder-content">
+                    <p>Здесь будут доступны настройки системы паллетизации</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="menu.js"></script>
+    <script src="warehouse-3d/warehouse-data.js"></script>
+    <script src="warehouse-3d/warehouse.js"></script>
+    <script src="warehouse-3d/warehouse-integration.js"></script>
+</body>
+</html>

@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUDO® - Система оптимизации паллетизации</title>
+    <meta name="theme-color" content="#FFFFFF">
+    <title>KUDO®</title>
+    <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="menu-styles.css">
     <link rel="stylesheet" href="warehouse-3d/styles.css">
     <link rel="stylesheet" href="warehouse-3d/warehouse-menu-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="K.ico" type="image/x-icon">
     <link rel="shortcut icon" href="K.ico" type="image/x-icon">
+    <script src="localization.js"></script>
+    <script src="lang-init.js"></script>
+    <script src="theme-init.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/renderers/CSS2DRenderer.js"></script>
@@ -25,7 +30,7 @@
         </div>
         <div class="user-info">
             <span id="username-display">Admin</span>
-            <button id="logout-btn">Выйти</button>
+            <button id="logout-btn" data-lang-key="logout">Выйти</button>
         </div>
     </header>
 
@@ -36,37 +41,37 @@
                 <li class="active">
                     <a href="#" data-section="orders">
                         <i class="fas fa-shopping-cart"></i>
-                        <span>Заказы</span>
+                        <span data-lang-key="orders">Заказы</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" data-section="warehouse">
                         <i class="fas fa-warehouse"></i>
-                        <span>Склад</span>
+                        <span data-lang-key="warehouse">Склад</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" data-section="pallets">
                         <i class="fas fa-pallet"></i>
-                        <span>Паллеты</span>
+                        <span data-lang-key="pallets">Паллеты</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" data-section="operators">
                         <i class="fas fa-users"></i>
-                        <span>Операторы</span>
+                        <span data-lang-key="operators">Операторы</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" data-section="statistics">
                         <i class="fas fa-chart-line"></i>
-                        <span>Статистика</span>
+                        <span data-lang-key="statistics">Статистика</span>
                     </a>
                 </li>
                 <li>
                     <a href="#" data-section="settings">
                         <i class="fas fa-cog"></i>
-                        <span>Настройки</span>
+                        <span data-lang-key="settings">Настройки</span>
                     </a>
                 </li>
             </ul>
@@ -74,10 +79,10 @@
 
         <main class="content">
             <section id="orders" class="active">
-                <h2><i class="fas fa-shopping-cart"></i> Управление заказами</h2>
+                <h2><i class="fas fa-shopping-cart"></i> <span data-lang-key="orders_title">Управление заказами</span></h2>
                 <div class="action-buttons">
-                    <button class="primary-btn"><i class="fas fa-plus"></i> Создать заказ</button>
-                    <button><i class="fas fa-file-import"></i> Импорт заказов</button>
+                    <button class="primary-btn"><i class="fas fa-plus"></i> <span data-lang-key="create_order">Создать заказ</span></button>
+                    <button><i class="fas fa-file-import"></i> <span data-lang-key="import_orders">Импорт заказов</span></button>
                 </div>
                 
                 <!-- Обычная таблица (будет скрыта на мобильных) -->
@@ -85,50 +90,50 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>№ Заказа</th>
-                                <th>Статус</th>
-                                <th>Дата</th>
-                                <th>Товары</th>
-                                <th>Паллеты</th>
-                                <th>Действия</th>
+                                <th data-lang-key="order_number">№ Заказа</th>
+                                <th data-lang-key="status">Статус</th>
+                                <th data-lang-key="date">Дата</th>
+                                <th data-lang-key="products">Товары</th>
+                                <th data-lang-key="pallets_count">Паллеты</th>
+                                <th data-lang-key="actions">Действия</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>ORD-2023-001</td>
-                                <td><span class="status-active">В процессе</span></td>
+                                <td><span class="status-active" data-lang-key="status_active">В процессе</span></td>
                                 <td>15.07.2023</td>
                                 <td>24</td>
                                 <td>3</td>
                                 <td>
                                     <div class="action-buttons-cell">
-                                        <button class="action-btn"><i class="fas fa-eye"></i> Просмотр</button>
-                                        <button class="action-btn"><i class="fas fa-magic"></i> Оптимизировать</button>
+                                        <button class="action-btn"><i class="fas fa-eye"></i> <span data-lang-key="view">Просмотр</span></button>
+                                        <button class="action-btn"><i class="fas fa-magic"></i> <span data-lang-key="optimize">Оптимизировать</span></button>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>ORD-2023-002</td>
-                                <td><span class="status-complete">Завершен</span></td>
+                                <td><span class="status-complete" data-lang-key="status_complete">Завершен</span></td>
                                 <td>14.07.2023</td>
                                 <td>36</td>
                                 <td>4</td>
                                 <td>
                                     <div class="action-buttons-cell">
-                                        <button class="action-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                                        <button class="action-btn"><i class="fas fa-eye"></i> <span data-lang-key="view">Просмотр</span></button>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>ORD-2023-003</td>
-                                <td><span class="status-pending">Ожидание</span></td>
+                                <td><span class="status-pending" data-lang-key="status_pending">Ожидание</span></td>
                                 <td>16.07.2023</td>
                                 <td>18</td>
                                 <td>2</td>
                                 <td>
                                     <div class="action-buttons-cell">
-                                        <button class="action-btn"><i class="fas fa-eye"></i> Просмотр</button>
-                                        <button class="action-btn"><i class="fas fa-play"></i> Начать сборку</button>
+                                        <button class="action-btn"><i class="fas fa-eye"></i> <span data-lang-key="view">Просмотр</span></button>
+                                        <button class="action-btn"><i class="fas fa-play"></i> <span data-lang-key="start_collection">Начать сборку</span></button>
                                     </div>
                                 </td>
                             </tr>
@@ -142,25 +147,25 @@
                     <div class="order-card">
                         <div class="order-header">
                             <div class="order-number">ORD-2023-001</div>
-                            <div class="order-status status-active">В процессе</div>
+                            <div class="order-status status-active" data-lang-key="status_active">В процессе</div>
                         </div>
                         <div class="order-details">
                             <div class="detail-row">
-                                <span class="detail-label">Дата:</span>
+                                <span class="detail-label" data-lang-key="date">Дата:</span>
                                 <span class="detail-value">15.07.2023</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Товары:</span>
+                                <span class="detail-label" data-lang-key="products">Товары:</span>
                                 <span class="detail-value">24</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-label" data-lang-key="pallets_count">Паллеты:</span>
                                 <span class="detail-value">3</span>
                             </div>
                         </div>
                         <div class="order-actions">
-                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
-                            <button class="mobile-btn optimize-btn"><i class="fas fa-magic"></i> Оптимизировать</button>
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> <span data-lang-key="view">Просмотр</span></button>
+                            <button class="mobile-btn optimize-btn"><i class="fas fa-magic"></i> <span data-lang-key="optimize">Оптимизировать</span></button>
                         </div>
                     </div>
                     
@@ -168,24 +173,24 @@
                     <div class="order-card">
                         <div class="order-header">
                             <div class="order-number">ORD-2023-002</div>
-                            <div class="order-status status-complete">Завершен</div>
+                            <div class="order-status status-complete" data-lang-key="status_complete">Завершен</div>
                         </div>
                         <div class="order-details">
                             <div class="detail-row">
-                                <span class="detail-label">Дата:</span>
+                                <span class="detail-label" data-lang-key="date">Дата:</span>
                                 <span class="detail-value">14.07.2023</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Товары:</span>
+                                <span class="detail-label" data-lang-key="products">Товары:</span>
                                 <span class="detail-value">36</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-label" data-lang-key="pallets_count">Паллеты:</span>
                                 <span class="detail-value">4</span>
                             </div>
                         </div>
                         <div class="order-actions">
-                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> <span data-lang-key="view">Просмотр</span></button>
                         </div>
                     </div>
                     
@@ -193,39 +198,39 @@
                     <div class="order-card">
                         <div class="order-header">
                             <div class="order-number">ORD-2023-003</div>
-                            <div class="order-status status-pending">Ожидание</div>
+                            <div class="order-status status-pending" data-lang-key="status_pending">Ожидание</div>
                         </div>
                         <div class="order-details">
                             <div class="detail-row">
-                                <span class="detail-label">Дата:</span>
+                                <span class="detail-label" data-lang-key="date">Дата:</span>
                                 <span class="detail-value">16.07.2023</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Товары:</span>
+                                <span class="detail-label" data-lang-key="products">Товары:</span>
                                 <span class="detail-value">18</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Паллеты:</span>
+                                <span class="detail-label" data-lang-key="pallets_count">Паллеты:</span>
                                 <span class="detail-value">2</span>
                             </div>
                         </div>
                         <div class="order-actions">
-                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> Просмотр</button>
-                            <button class="mobile-btn start-btn"><i class="fas fa-play"></i> Начать сборку</button>
+                            <button class="mobile-btn view-btn"><i class="fas fa-eye"></i> <span data-lang-key="view">Просмотр</span></button>
+                            <button class="mobile-btn start-btn"><i class="fas fa-play"></i> <span data-lang-key="start_collection">Начать сборку</span></button>
                         </div>
                     </div>
                 </div>
             </section>
 
             <section id="warehouse">
-                <h2><i class="fas fa-warehouse"></i> Карта склада</h2>
+                <h2><i class="fas fa-warehouse"></i> <span data-lang-key="warehouse_title">Карта склада</span></h2>
                 <div class="warehouse-container">
                     <div class="warehouse-3d-view">
                         <div id="warehouse-view"></div>
                         <div class="info-panel" id="info-panel">
-                            <h3>Информация о секции</h3>
+                            <h3 data-lang-key="section_info">Информация о секции</h3>
                             <div id="section-info">
-                                <p>Выберите секцию для просмотра деталей</p>
+                                <p data-lang-key="select_section">Выберите секцию для просмотра деталей</p>
                             </div>
                         </div>
                     </div>
@@ -233,30 +238,171 @@
             </section>
 
             <section id="pallets">
-                <h2><i class="fas fa-pallet"></i> Управление паллетами</h2>
+                <h2><i class="fas fa-pallet"></i> <span data-lang-key="pallets_title">Управление паллетами</span></h2>
                 <div class="placeholder-content">
-                    <p>Здесь будет функционал для просмотра и управления паллетами</p>
+                    <p data-lang-key="pallets_placeholder">Здесь будет функционал для просмотра и управления паллетами</p>
                 </div>
             </section>
 
             <section id="operators">
-                <h2><i class="fas fa-users"></i> Операторы и маршруты</h2>
+                <h2><i class="fas fa-users"></i> <span data-lang-key="operators_title">Операторы и маршруты</span></h2>
                 <div class="placeholder-content">
-                    <p>Здесь будет функционал для управления операторами и их маршрутами</p>
+                    <p data-lang-key="operators_placeholder">Здесь будет функционал для управления операторами и их маршрутами</p>
                 </div>
             </section>
 
             <section id="statistics">
-                <h2><i class="fas fa-chart-line"></i> Статистика и аналитика</h2>
+                <h2><i class="fas fa-chart-line"></i> <span data-lang-key="statistics_title">Статистика и аналитика</span></h2>
                 <div class="placeholder-content">
-                    <p>Здесь будут отображены графики эффективности работы системы</p>
+                    <p data-lang-key="statistics_placeholder">Здесь будут отображены графики эффективности работы системы</p>
                 </div>
             </section>
 
             <section id="settings">
-                <h2><i class="fas fa-cog"></i> Настройки системы</h2>
-                <div class="placeholder-content">
-                    <p>Здесь будут доступны настройки системы паллетизации</p>
+                <h2><i class="fas fa-cog"></i> <span data-lang-key="settings_title">Настройки системы</span></h2>
+                <div class="settings-container">
+                    <div class="settings-panel">
+                        <h3 data-lang-key="general_settings">Общие настройки</h3>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <label for="theme-select" data-lang-key="theme">Тема интерфейса</label>
+                                <select id="theme-select" class="settings-control">
+                                    <option value="light" data-lang-key="light_theme">Светлая</option>
+                                    <option value="dark" data-lang-key="dark_theme">Темная</option>
+                                    <option value="auto" data-lang-key="auto_theme">Системная</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="lang-select" data-lang-key="language">Язык интерфейса</label>
+                                <select id="lang-select" class="settings-control">
+                                    <option value="ru">Русский</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-panel">
+                        <h3 data-lang-key="palletization_settings">Параметры паллетизации</h3>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <label for="max-pallet-weight" data-lang-key="max_pallet_weight">Максимальный вес паллеты (кг)</label>
+                                <input type="number" id="max-pallet-weight" class="settings-control" value="1000">
+                            </div>
+                            <div class="setting-item">
+                                <label for="max-pallet-height" data-lang-key="max_pallet_height">Максимальная высота паллеты (см)</label>
+                                <input type="number" id="max-pallet-height" class="settings-control" value="180">
+                            </div>
+                            <div class="setting-item">
+                                <label for="layer-count" data-lang-key="layer_count">Количество слоёв укладки</label>
+                                <input type="number" id="layer-count" class="settings-control" value="4">
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="brick-pattern" checked>
+                                    <label for="brick-pattern" data-lang-key="brick_pattern">Использовать кирпичную перевязку</label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="heavy-bottom" checked>
+                                    <label for="heavy-bottom" data-lang-key="heavy_bottom">Тяжелые коробки внизу</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-panel">
+                        <h3 data-lang-key="routing_algorithm">Алгоритм маршрутизации</h3>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <label for="route-algorithm" data-lang-key="route_method">Метод построения маршрута</label>
+                                <select id="route-algorithm" class="settings-control">
+                                    <option value="nearest" data-lang-key="nearest_neighbor">Ближайший сосед</option>
+                                    <option value="optimal" data-lang-key="optimal_route">Оптимальный маршрут</option>
+                                    <option value="sectoral" data-lang-key="sectoral">По секторам</option>
+                                    <option value="sequential" data-lang-key="sequential">Последовательный</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="operators-count" data-lang-key="operators_count">Количество операторов</label>
+                                <input type="number" id="operators-count" class="settings-control" value="2">
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="minimize-path" checked>
+                                    <label for="minimize-path" data-lang-key="minimize_path">Минимизировать длину маршрута</label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="minimize-moves">
+                                    <label for="minimize-moves" data-lang-key="minimize_moves">Минимизировать число перекладок</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-panel">
+                        <h3 data-lang-key="visualization">Визуализация и представление</h3>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <label for="visualization-quality" data-lang-key="visualization_quality">Качество 3D-визуализации</label>
+                                <select id="visualization-quality" class="settings-control">
+                                    <option value="low" data-lang-key="low_quality">Низкое</option>
+                                    <option value="medium" selected data-lang-key="medium_quality">Среднее</option>
+                                    <option value="high" data-lang-key="high_quality">Высокое</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="show-labels" checked>
+                                    <label for="show-labels" data-lang-key="show_labels">Показывать метки секций</label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="show-route" checked>
+                                    <label for="show-route" data-lang-key="show_route">Показывать маршрут в 3D</label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="animate-route">
+                                    <label for="animate-route" data-lang-key="animate_route">Анимация маршрута</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-panel">
+                        <h3 data-lang-key="export_integration">Экспорт и интеграция</h3>
+                        <div class="settings-group">
+                            <div class="setting-item">
+                                <label for="export-format" data-lang-key="export_format">Формат экспорта маршрутов</label>
+                                <select id="export-format" class="settings-control">
+                                    <option value="pdf">PDF</option>
+                                    <option value="excel">Excel</option>
+                                    <option value="json">JSON</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="api-endpoint" data-lang-key="api_endpoint">Адрес API</label>
+                                <input type="text" id="api-endpoint" class="settings-control" value="https://api.kudo.ru/warehouse">
+                            </div>
+                            <div class="setting-item">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="auto-sync" checked>
+                                    <label for="auto-sync" data-lang-key="auto_sync">Автоматическая синхронизация данных</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-actions">
+                        <button id="save-settings-btn" class="primary-btn"><i class="fas fa-save"></i> <span data-lang-key="save_settings">Сохранить настройки</span></button>
+                        <button id="reset-settings-btn" class="secondary-btn"><i class="fas fa-undo"></i> <span data-lang-key="reset_default">Восстановить по умолчанию</span></button>
+                    </div>
                 </div>
             </section>
         </main>

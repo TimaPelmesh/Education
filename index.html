@@ -7,38 +7,46 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Вход в KUDO®</title>
+    <meta name="theme-color" content="#FFFFFF">
+    <title>KUDO®</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=1.0.1">
+    <link rel="stylesheet" href="theme.css?v=1.0.0">
+    <link rel="stylesheet" href="index-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="K.ico" type="image/x-icon">
     <link rel="shortcut icon" href="K.ico" type="image/x-icon">
+    <script src="localization.js"></script>
+    <script src="lang-init.js"></script>
+    <script src="theme-init.js"></script>
   </head>
   <body>
     <div class="auth-container">
       <form id="login-form" novalidate>
-        <h1>Вход</h1>
+        <h1 data-lang-key="login">Вход</h1>
         <div class="input-group">
-          <input type="text" id="username" placeholder="Логин" required>
+          <input type="text" id="username" data-lang-placeholder="username_placeholder" placeholder="Логин" required>
         </div>
         <div class="input-group">
-          <input type="password" id="password" placeholder="Пароль" required>
+          <input type="password" id="password" data-lang-placeholder="password_placeholder" placeholder="Пароль" required>
         </div>
         <div class="options">
           <label>
             <input type="checkbox" id="remember-me">
-            Запомнить меня
+            <span data-lang-key="remember_me">Запомнить меня</span>
           </label>
-          <a href="#" id="forgot-password">Восстановить пароль</a>
+          <a href="#" id="forgot-password" data-lang-key="forgot_password">Восстановить пароль</a>
         </div>
-        <button type="submit" id="login-btn">Авторизоваться</button>
-        <div id="loading-animation" class="hidden">Загрузка...</div>
+        <button type="submit" id="login-btn" data-lang-key="login_button">Авторизоваться</button>
+        <div id="loading-animation" class="hidden" data-lang-key="loading">Загрузка...</div>
         <div class="register-link">
           <p></p>
         </div>
       </form>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r140/three.min.js"></script>
     <script src="script.js"></script>
   </body>

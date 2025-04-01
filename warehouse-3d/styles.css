@@ -106,4 +106,58 @@ h2, h3 {
 .selected-section {
     color: #fff;
     background-color: #1976d2;
+}
+
+/* Темная тема для 3D-визуализации */
+body.dark-theme #warehouse-view {
+  background-color: #111827;
+}
+
+body.dark-theme .info-panel {
+  background-color: #1F2937;
+  border-color: #374151;
+  color: #F9FAFB;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .info-panel h3 {
+  color: #F9FAFB;
+  border-bottom-color: #374151;
+}
+
+body.dark-theme .info-panel p {
+  color: #D1D5DB;
+}
+
+body.dark-theme .warehouse-controls {
+  background-color: rgba(31, 41, 55, 0.8);
+  border-color: #374151;
+}
+
+body.dark-theme .control-btn {
+  background-color: #2D3748;
+  color: #F9FAFB;
+  border-color: #4B5563;
+}
+
+body.dark-theme .control-btn:hover {
+  background-color: #4B5563;
+}
+
+body.dark-theme .section-label {
+  color: #F9FAFB;
+  background-color: rgba(31, 41, 55, 0.8);
+  border-color: #4B5563;
+}
+
+/* Плавные переходы для элементов */
+#warehouse-view, 
+.info-panel, 
+.warehouse-controls, 
+.control-btn, 
+.section-label {
+  transition: background-color 0.3s ease-in-out, 
+              color 0.3s ease-in-out, 
+              border-color 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out;
 } 

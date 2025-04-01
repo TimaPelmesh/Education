@@ -207,3 +207,66 @@ body {
         font-size: 0.95rem;
     }
 }
+
+/* Стили для темной темы на странице входа */
+body.dark-theme {
+  background-color: #111827;
+}
+
+body.dark-theme .auth-container {
+  background-color: #1F2937;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme #login-form {
+  background-color: #1F2937;
+  border-color: #374151;
+}
+
+body.dark-theme #login-form h1 {
+  color: #F9FAFB;
+}
+
+body.dark-theme .input-group input {
+  background-color: #111827;
+  border-color: #374151;
+  color: #F9FAFB;
+}
+
+body.dark-theme .input-group input:focus {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+}
+
+body.dark-theme .options label {
+  color: #D1D5DB;
+}
+
+body.dark-theme #forgot-password {
+  color: #6366F1;
+}
+
+body.dark-theme #forgot-password:hover {
+  color: #4F46E5;
+}
+
+body.dark-theme #login-btn {
+  background-color: #6366F1;
+  color: white;
+}
+
+body.dark-theme #login-btn:hover {
+  background-color: #4F46E5;
+}
+
+body.dark-theme #loading-animation {
+  color: #F9FAFB;
+}
+
+/* Плавные переходы для элементов */
+body, .auth-container, #login-form, input, button, a {
+  transition: background-color 0.3s ease-in-out, 
+              color 0.3s ease-in-out, 
+              border-color 0.3s ease-in-out, 
+              box-shadow 0.3s ease-in-out;
+}

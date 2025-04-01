@@ -1448,4 +1448,121 @@ function animate() {
 function addNavigationHelp() {
     // Функция больше не добавляет никаких элементов
     return;
-} 
+}
+
+// Добавим функцию для обновления цветов сцены в зависимости от темы
+function updateSceneColors(isDarkTheme) {
+    // Обновляем цвет фона сцены
+    if (isDarkTheme) {
+        scene.background = new THREE.Color(0x111827); // Темный фон для темной темы
+        gridHelper.material.color = new THREE.Color(0x374151); // Темная сетка
+        floorMesh.material.color = new THREE.Color(0x1F2937); // Темный пол
+    } else {
+        scene.background = new THREE.Color(0xf5f5f5); // Светлый фон для светлой темы
+        gridHelper.material.color = new THREE.Color(0xdddddd); // Светлая сетка
+        floorMesh.material.color = new THREE.Color(0xffffff); // Белый пол
+    }
+    
+    // Обновляем цвета секций и меток
+    updateSectionColors(isDarkTheme);
+    
+    // Перерисовываем сцену
+    renderer.render(scene, camera);
+}
+
+// Функция для обновления цветов секций
+function updateSectionColors(isDarkTheme) {
+    sectionObjects.forEach(sectionObj => {
+        // Получаем текущий материал секции
+        const material = sectionObj.sectionMesh.material;
+        
+        // Проверяем, выделена ли секция
+        const isHighlighted = sectionObj.isHighlighted;
+        
+        // Устанавливаем соответствующий цвет
+        if (isHighlighted) {
+            // Цвета для выделенной секции
+            material.color.set(isDarkTheme ? 0x4F46E5 : 0x6366F1);
+        } else {
+            // Цвета для обычной секции
+            material.color.set(isDarkTheme ? 0x2D3748 : 0xE0E0E0);
+        }
+        
+        // Обновляем прозрачность и непрозрачность
+        material.opacity = isHighlighted ? 0.8 : 0.5;
+    });
+}
+
+// Добавляем функцию для обновления визуализации на основе настроек
+function updateWarehouseVisualization(settings) {
+    if (!settings) return;
+    
+    // Применяем настройки качества визуализации
+    updateRenderQuality(settings.quality);
+    
+    // Обновляем видимость меток
+    updateLabelsVisibility(settings.showLabels);
+    
+    // Обновляем видимость маршрута
+    updateRouteVisibility(settings.showRoute);
+    
+    // Обновляем настройки анимации
+    updateRouteAnimation(settings.animateRoute);
+    
+    // Обновляем цвета в зависимости от темы
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    updateSceneColors(isDarkTheme);
+}
+
+// Функция для обновления качества рендеринга
+function updateRenderQuality(quality) {
+    if (!quality) return;
+    
+    switch (quality) {
+        case 'low':
+            renderer.setPixelRatio(window.devicePixelRatio * 0.5);
+            renderer.setSize(warehouseContainer.clientWidth * 0.8, warehouseContainer.clientHeight * 0.8);
+            break;
+        case 'medium':
+            renderer.setPixelRatio(window.devicePixelRatio * 0.75);
+            renderer.setSize(warehouseContainer.clientWidth, warehouseContainer.clientHeight);
+            break;
+        case 'high':
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(warehouseContainer.clientWidth * 1.2, warehouseContainer.clientHeight * 1.2);
+            break;
+    }
+}
+
+// Функция для обновления видимости меток
+function updateLabelsVisibility(showLabels) {
+    labelRenderer.domElement.style.display = showLabels ? 'block' : 'none';
+}
+
+// Функция для обновления видимости маршрута
+function updateRouteVisibility(showRoute) {
+    if (routePathLine) {
+        routePathLine.visible = showRoute;
+    }
+}
+
+// Функция для обновления анимации маршрута
+function updateRouteAnimation(animateRoute) {
+    isRouteAnimationEnabled = animateRoute;
+}
+
+// Наблюдатель за изменениями темы
+const themeObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+        if (mutation.attributeName === 'class') {
+            const isDarkTheme = document.body.classList.contains('dark-theme');
+            updateSceneColors(isDarkTheme);
+        }
+    });
+});
+
+// Запускаем наблюдатель за изменениями класса body
+themeObserver.observe(document.body, { attributes: true });
+
+// Экспортируем функцию обновления визуализации
+window.updateWarehouseVisualization = updateWarehouseVisualization; 

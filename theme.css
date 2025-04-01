@@ -1,0 +1,134 @@
+/* Глобальные стили темы для всех страниц KUDO® */
+
+:root {
+  /* Базовые цвета светлой темы */
+  --white: #ffffff;
+  --primary: #6366F1;          /* Основной цвет (индиго) */
+  --primary-light: #C7D2FE;    /* Светлый индиго */
+  --primary-dark: #4338CA;     /* Темный индиго */
+  --secondary: #10B981;        /* Изумрудный */
+  --accent: #F59E0B;           /* Янтарный */
+  --danger: #EF4444;           /* Красный */
+  --text-dark: #1F2937;        /* Темно-серый для текста */
+  --text-light: #6B7280;       /* Светло-серый для неактивного текста */
+  --border-light: #E5E7EB;     /* Светло-серый для границ */
+  --bg-page: #F9FAFB;          /* Фон страницы */
+  --bg-component: #FFFFFF;     /* Фон компонентов */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Переменные для плавного перехода */
+  --transition-theme: background-color 0.3s ease-in-out, 
+                     color 0.3s ease-in-out, 
+                     border-color 0.3s ease-in-out, 
+                     box-shadow 0.3s ease-in-out;
+}
+
+/* Темная тема */
+body.dark-theme {
+  /* Переопределение переменных для темной темы */
+  --bg-page: #111827;          /* Темный фон страницы */
+  --bg-component: #1F2937;     /* Темный фон компонентов */
+  --text-dark: #F9FAFB;        /* Светлый текст */
+  --text-light: #D1D5DB;       /* Светло-серый для неактивного текста */
+  --border-light: #374151;     /* Темно-серый для границ */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  
+  /* Специфические цвета темной темы */
+  --primary-light: #4F46E5;    /* Более темный индиго для темной темы */
+  color-scheme: dark;          /* Для системных элементов */
+}
+
+/* Общие стили для всех элементов */
+body {
+  background-color: var(--bg-page);
+  color: var(--text-dark);
+  transition: var(--transition-theme);
+}
+
+/* Стили для страницы входа */
+body.dark-theme .auth-container {
+  background-color: var(--bg-component);
+  box-shadow: var(--shadow-lg);
+}
+
+body.dark-theme form {
+  background-color: var(--bg-component);
+  color: var(--text-dark);
+  border-color: var(--border-light);
+}
+
+body.dark-theme h1 {
+  color: var(--text-dark);
+}
+
+body.dark-theme input[type="text"],
+body.dark-theme input[type="password"],
+body.dark-theme input[type="email"] {
+  background-color: var(--bg-page);
+  border-color: var(--border-light);
+  color: var(--text-dark);
+}
+
+body.dark-theme input[type="text"]:focus,
+body.dark-theme input[type="password"]:focus,
+body.dark-theme input[type="email"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+}
+
+body.dark-theme label {
+  color: var(--text-light);
+}
+
+body.dark-theme a {
+  color: var(--primary);
+}
+
+body.dark-theme a:hover {
+  color: var(--primary-light);
+}
+
+body.dark-theme button {
+  background-color: var(--primary);
+  color: white;
+}
+
+body.dark-theme button:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Применение плавных переходов ко всем элементам */
+input, button, a, form, .auth-container {
+  transition: var(--transition-theme);
+}
+
+/* Стиль для переключателя темы (если будет добавлен на странице входа) */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--bg-component);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  border: 1px solid var(--border-light);
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Дополнительные стили для специфических элементов могут быть добавлены здесь */ 
